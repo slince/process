@@ -15,9 +15,7 @@
         <whitelist>
             <directory>./</directory>
             <exclude>
-                <directory>./tests</directory>
                 <directory>./vendor</directory>
-                <directory>./src/Request</directory>
             </exclude>
         </whitelist>
     </filter>

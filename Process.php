@@ -173,10 +173,15 @@ class Process extends ProcessInterface
         return false;
     }
 
+    /**
+     * update process status
+     * @param bool $blocking
+     * @return bool
+     */
     protected function updateStatus($blocking = false)
     {
         if ($this->status != static::STATUS_RUNNING) {
-
+            return false;
         }
         $options = $blocking ? 0 : WNOHANG | WUNTRACED;
         $result = pcntl_waitpid($this->getPid(), $status, $options);
