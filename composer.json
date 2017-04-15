@@ -1,0 +1,24 @@
+{
+    "name": "slince/process",
+    "description": "Tencet QQ client based on command",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "tao",
+            "email": "taosikai@yeah.net"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Slince\\Process\\": "./"
+        }
+    },
+    "require": {
+        "php": ">=5.5.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.0"
+    },
+    "minimum-stability": "stable"
+}
