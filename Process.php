@@ -8,74 +8,76 @@ namespace Slince\Process;
 use Slince\Process\Exception\InvalidArgumentException;
 use Slince\Process\Exception\RuntimeException;
 
-class Process extends ProcessInterface
+class Process implements ProcessInterface
 {
+    /**
+     * process status,running
+     * @var string
+     */
     const STATUS_RUNNING = 'running';
 
+    /**
+     * process status,terminated
+     * @var string
+     */
     const STATUS_TERMINATED = 'terminated';
 
     /**
-     * 需要进程执行的代码
+     * callback
      * @var callable
      */
     protected $callback;
 
     /**
-     * 是否正在执行
-     * @var bool
-     */
-    protected $isRunning;
-
-    /**
-     * 进程id
+     * pid
      * @var int
      */
     protected $pid;
 
     /**
-     * 信号处理器
+     * signal handlers
      * @var array
      */
     protected $signalHandlers = [];
 
     /**
-     * 状态
+     * current status
      * @var string
      */
     protected $status;
 
     /**
-     * 进程退出码
+     * exit code
      * @var int
      */
     protected $exitCode;
 
     /**
-     * 退出信息
+     * error message
      * @var string
      */
     protected $errorMessage;
 
     /**
-     * 是否因信号而结束
+     * If the signal that caused the process to terminate
      * @var boolean
      */
     protected $ifSignaled;
 
     /**
-     * 导致进程因信号终止的信号代码
+     * The number of signal that caused the process to terminate
      * @var int
      */
     protected $termSignal;
 
     /**
-     * 是否停止
+     * The process If stopped
      * @var bool
      */
     protected $ifStopped;
 
     /**
-     * 获取导致进程停止的信号代码
+     * The number of signal that caused the process to stop
      * @var int
      */
     protected $stopSignal;
@@ -102,7 +104,7 @@ class Process extends ProcessInterface
         $pid = pcntl_fork();
         if ($pid == -1) {
             throw new RuntimeException("Could not fork");
-        } elseif ($pid) {  //父进程标准子进程号
+        } elseif ($pid) { //Records the pid of the child process
             $this->pid = $pid;
             $this->status = static::STATUS_RUNNING;
         } else {
@@ -131,21 +133,6 @@ class Process extends ProcessInterface
     }
 
     /**
-     * 安装信号处理器
-     * @return void
-     */
-    protected function installSignalHandlers()
-    {
-        foreach ($this->signalHandlers as $signal => $signalHandler) {
-            pcntl_signal($signal, $signalHandler);
-        }
-        //当发送终止信号时，退出当前进程
-        pcntl_signal(SIGTERM, function(){
-            exit(0);
-        });
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getPid()
@@ -166,31 +153,62 @@ class Process extends ProcessInterface
      */
     public function isRunning()
     {
-        if ($this->status == static::STATUS_RUNNING) {
-            return true;
+        //if process is not running, return false
+        if ($this->status != static::STATUS_RUNNING) {
+            return false;
         }
-
-        return false;
+        //update child process status
+        $this->updateStatus(false);
+        return $this->status == static::STATUS_RUNNING;
     }
 
     /**
-     * update process status
+     * Sets the handler for a signal
+     * @param int $signal
+     * @param callable $handler
+     */
+    public function setSignalHandler($signal, $handler)
+    {
+        if (!is_callable($handler)) {
+            throw new InvalidArgumentException('The signal handler should be callable');
+        }
+        $this->signalHandlers[$signal] = $handler;
+    }
+
+    /**
+     * Installs all signal handlers
+     * @return void
+     */
+    protected function installSignalHandlers()
+    {
+        foreach ($this->signalHandlers as $signal => $signalHandler) {
+            pcntl_signal($signal, $signalHandler);
+        }
+        //The process stop its execution when the SIGTERM signal is received,
+        pcntl_signal(SIGTERM, function(){
+            exit(0);
+        });
+    }
+
+
+    /**
+     * Updates the status of the process
      * @param bool $blocking
-     * @return bool
+     * @throws RuntimeException
      */
     protected function updateStatus($blocking = false)
     {
         if ($this->status != static::STATUS_RUNNING) {
-            return false;
+            return;
         }
         $options = $blocking ? 0 : WNOHANG | WUNTRACED;
         $result = pcntl_waitpid($this->getPid(), $status, $options);
         if ($result == -1) {
             throw new RuntimeException("Error waits on or returns the status of the process");
         } elseif ($result) {
-            //退出
+            //The process is terminated
             $this->status = static::STATUS_TERMINATED;
-            //检查状态是否正常退出
+            //checks if the process is exited normally
             if (pcntl_wifexited($status)) {
                 $this->exitCode = pcntl_wexitstatus($status);
                 $this->errorMessage = pcntl_strerror($this->exitCode);
@@ -206,18 +224,5 @@ class Process extends ProcessInterface
         } else {
             $this->status = static::STATUS_RUNNING;
         }
-    }
-
-    /**
-     * 设置信号处理器
-     * @param int $signal
-     * @param callable $handler
-     */
-    public function setSignalHandler($signal, $handler)
-    {
-        if (!is_callable($handler)) {
-            throw new InvalidArgumentException('The signal handler should be callable');
-        }
-        $this->signalHandlers[$signal] = $handler;
     }
 }

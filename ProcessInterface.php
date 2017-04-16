@@ -8,36 +8,30 @@ namespace Slince\Process;
 interface ProcessInterface
 {
     /**
-     * 获取进程号
+     * Returns the Pid (process identifier)
      * @return resource
      */
     public function getPid();
 
     /**
-     * 开始执行进程
+     * Starts the process
      */
     public function start();
 
     /**
-     * 等待进程执行
+     * Waits for the process to terminate.
      */
     public function wait();
 
     /**
-     * 执行进程
-     * @return void
-     */
-    public function run();
-
-    /**
-     * 给进程发信号
+     * Sends a posix signal to the process.
      * @param int $signal pcntl sinal
      * @return boolean
      */
     public function signal($signal);
 
     /**
-     * 是否正在执行
+     * Checks if the process is currently running
      * @return bool
      */
     public function isRunning();
