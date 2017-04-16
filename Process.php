@@ -65,7 +65,7 @@ class Process implements ProcessInterface
     protected $ifSignaled;
 
     /**
-     * The number of signal that caused the process to terminate
+     * The signal that caused the process to terminate
      * @var int
      */
     protected $termSignal;
@@ -77,7 +77,7 @@ class Process implements ProcessInterface
     protected $ifStopped;
 
     /**
-     * The number of signal that caused the process to stop
+     * The signal that caused the process to stop
      * @var int
      */
     protected $stopSignal;
@@ -145,6 +145,9 @@ class Process implements ProcessInterface
      */
     public function signal($signal)
     {
+        if (!$this->isRunning()) {
+            throw new RuntimeException("The process is not currently running");
+        }
         posix_kill($this->getPid(), $signal);
     }
 
@@ -173,6 +176,19 @@ class Process implements ProcessInterface
             throw new InvalidArgumentException('The signal handler should be callable');
         }
         $this->signalHandlers[$signal] = $handler;
+    }
+
+    /**
+     * Gets the handler for a signal
+     * @param $signal
+     * @return int|string
+     */
+    public function getSignalHandler($signal)
+    {
+        if (isset($this->signalHandlers[$signal])) {
+            return $this->signalHandlers[$signal];
+        }
+        return pcntl_signal_get_handler($signal);
     }
 
     /**
