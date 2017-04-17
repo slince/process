@@ -119,7 +119,6 @@ class Process implements ProcessInterface
         }
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -128,6 +127,8 @@ class Process implements ProcessInterface
         while (true) {
             if ($this->isRunning()) {
                 usleep(1000);
+            } else {
+                break;
             }
         }
     }
