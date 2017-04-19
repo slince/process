@@ -153,6 +153,24 @@ class Process implements ProcessInterface
     }
 
     /**
+     * Gets the exit code of the process
+     * @return int
+     */
+    public function getExitCode()
+    {
+        return $this->exitCode;
+    }
+
+    /**
+     * Gets the error message for the exit code
+     * @return string
+     */
+    public function getErrorMessage()
+    {
+        return $this->errorMessage;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function isRunning()

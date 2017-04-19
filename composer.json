@@ -1,6 +1,7 @@
 {
     "name": "slince/process",
-    "description": "Tencet QQ client based on command",
+    "description": "The process wrapper and manager based on ext-pcntl",
+    "keywords": ["process", "fork", "pipe", "system v", "Semaphore", "shared memory", "pcntl", "ext-pcntl"],
     "type": "library",
     "license": "MIT",
     "authors": [
