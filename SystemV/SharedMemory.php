@@ -7,6 +7,8 @@ namespace Slince\Process\SystemV;
 
 class SharedMemory
 {
+    use IpcKeyTrait;
+
     /**
      * The resource that be generated after call "shm_attach"
      * @var resource
@@ -19,10 +21,10 @@ class SharedMemory
      */
     protected $size;
 
-    public function __construct($size, $file = null)
+    public function __construct($size, $pathname = __FILE__)
     {
         $this->size = static::humanReadableToBytes($size);
-        $ipcKey = $this->generateIpcKey($file);
+        $ipcKey = $this->generateIpcKey($pathname);
         $this->shmId = shm_attach($ipcKey, $size);
     }
 
@@ -76,19 +78,6 @@ class SharedMemory
         shm_remove($this->shmId);
         shm_detach($this->shmId);
         unlink($this->shmId);
-    }
-
-    /**
-     * Generates the ipc key from the file
-     * @param null|string $file
-     * @return int
-     */
-    protected function generateIpcKey($file = null)
-    {
-        if (is_null($file)) {
-            $file = tempnam('/tmp', 'PHP');
-        }
-        return ftok($file, 'a');
     }
 
     /**

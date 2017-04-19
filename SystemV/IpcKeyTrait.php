@@ -1,15 +1,20 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: taosikai
- * Date: 2017/4/18
- * Time: 22:52
+ * Process Library
+ * @author Tao <taosikai@yeah.net>
  */
-
 namespace Slince\Process\SystemV;
 
-
-class IpcKeyTrait
+trait IpcKeyTrait
 {
-
+    /**
+     * Generates the ipc key from an existing file and a project identifier
+     * @param string $pathname
+     * @param string $projectId
+     * @return int
+     */
+    public function generateIpcKey($pathname, $projectId = 'p')
+    {
+        return ftok($pathname, $projectId);
+    }
 }
