@@ -30,10 +30,10 @@ class Pipe implements PipeInterface
 
     public function __construct($fifoPath, $mode  = 0666)
     {
-        if (file_exists($fifoPath) && gettype($fifoPath) !== 'fifo') {
-            throw new InvalidArgumentException("The file already exists, but not the valid fifo file");
-        }
-        if (!posix_mkfifo($fifoPath, $mode))  {
+        if (($isExisted = file_exists($fifoPath)) && filetype($fifoPath) !== 'fifo') {
+            throw new InvalidArgumentException("The file already exists, but is not a valid fifo file");
+        } 
+        if (!$isExisted && !posix_mkfifo($fifoPath, $mode)) {
             throw new RuntimeException("Cannot create the fifo file");
         }
         $this->fifoPath = $fifoPath;

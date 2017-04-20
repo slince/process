@@ -45,14 +45,16 @@ class PipeTest extends TestCase
         $fifo = sys_get_temp_dir() . '/test.pipe';
         $pipe = new Pipe($fifo);
         $pipe->write("Hello");
-        ob_start();
         $process = new Process(function() use($fifo){
             $pipe = new Pipe($fifo);
-            echo $pipe->read();
+            $pipe->write($pipe->read());
+            $pipe->close();
+             
         });
         $process->start();
         $process->wait();
-        $content = ob_get_clean();
-        $this->assertEquals('Hello', $content);
+        $this->assertEquals('Hello', $pipe->read());
+        $pipe->close();
+
     }
 }
