@@ -70,6 +70,14 @@ class SharedMemory
     }
 
     /**
+     * Deletes all items
+     */
+    public function clear()
+    {
+        shm_remove($this->shmId);
+    }
+
+    /**
      * Removes all items and disconnects from shared memory
      * @return void
      */

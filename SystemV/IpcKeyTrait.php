@@ -9,12 +9,12 @@ trait IpcKeyTrait
 {
     /**
      * Generates the ipc key from an existing file and a project identifier
-     * @param string $pathname
+     * @param string|int $pathname
      * @param string $projectId
      * @return int
      */
     public function generateIpcKey($pathname, $projectId = 'p')
     {
-        return ftok($pathname, $projectId);
+        return is_numeric($pathname) ? $pathname : ftok($pathname, $projectId);
     }
 }
