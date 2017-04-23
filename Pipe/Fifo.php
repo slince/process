@@ -8,13 +8,13 @@ namespace Slince\Process\Pipe;
 use Slince\Process\Exception\InvalidArgumentException;
 use Slince\Process\Exception\RuntimeException;
 
-class Pipe implements PipeInterface
+class Fifo implements PipeInterface
 {
     /**
      * The path of fifo
      * @var string
      */
-    protected $fifoPath;
+    protected $pathname;
 
     /**
      * The read stream
@@ -28,35 +28,35 @@ class Pipe implements PipeInterface
      */
     protected $writeStream;
 
-    public function __construct($fifoPath, $mode  = 0666)
+    public function __construct($pathname, $mode  = 0666)
     {
-        if (($isExisted = file_exists($fifoPath)) && filetype($fifoPath) !== 'fifo') {
+        if (($isExisted = file_exists($pathname)) && filetype($pathname) !== 'fifo') {
             throw new InvalidArgumentException("The file already exists, but is not a valid fifo file");
         } 
-        if (!$isExisted && !posix_mkfifo($fifoPath, $mode)) {
+        if (!$isExisted && !posix_mkfifo($pathname, $mode)) {
             throw new RuntimeException("Cannot create the fifo file");
         }
-        $this->fifoPath = $fifoPath;
+        $this->pathname = $pathname;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function read($blocking = false)
+    public function read($size = 1024, $blocking = false)
     {
         $stream = $this->getReadStream();
         stream_set_blocking($stream, $blocking);
-        return stream_get_contents($stream);
+        return fread($stream, $size);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($content, $blocking =  false)
+    public function write($message, $blocking = false)
     {
         $stream = $this->getWriteStream();
         stream_set_blocking($stream, $blocking);
-        return fwrite($stream, $content, strlen($content));
+        return fwrite($stream, $message, strlen($message));
     }
 
     /**
@@ -68,20 +68,28 @@ class Pipe implements PipeInterface
         @fclose($this->writeStream);
     }
 
+    /**
+     * Gets the read stream
+     * @return bool|resource
+     */
     protected function getReadStream()
     {
         if (!is_null($this->readStream)) {
             return $this->readStream;
         }
-        return $this->readStream = fopen($this->fifoPath,  'r+');
+        return $this->readStream = fopen($this->pathname,  'r+');
     }
 
+    /**
+     * Gets the write stream
+     * @return bool|resource
+     */
     protected function getWriteStream()
     {
         if (!is_null($this->writeStream)) {
             return $this->writeStream;
         }
-        return $this->writeStream = fopen($this->fifoPath,  'w+');
+        return $this->writeStream = fopen($this->pathname,  'w+');
     }
 
     public function __destruct()

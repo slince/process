@@ -84,13 +84,22 @@ class Process implements ProcessInterface
 
     public function __construct($callback)
     {
+        if (!static::isSupported()) {
+            throw new RuntimeException("Process need ext-pcntl");
+        }
         if (!is_callable($callback)) {
             throw new InvalidArgumentException("Process expects a callable callback");
         }
-        if (!function_exists('pcntl_fork')) {
-            throw new RuntimeException("Process need ext-pcntl");
-        }
         $this->callback = $callback;
+    }
+
+    /**
+     * Checks whether the current environment supports this
+     * @return bool
+     */
+    public static function isSupported()
+    {
+        return function_exists('pcntl_fork');
     }
 
     /**
@@ -109,7 +118,16 @@ class Process implements ProcessInterface
             $this->status = static::STATUS_RUNNING;
         } else {
             $this->pid = posix_getpid();
-            $this->installSignalHandlers();
+
+            var_dump($this->pid);
+            $res = pcntl_signal(SIGTERM, function(){
+                echo 'hello world';
+                exit(0);
+            });
+
+            var_dump($res);
+
+//            $this->installSignalHandlers();
             try {
                 $exitCode = call_user_func($this->callback);
             } catch (\Exception $e) {
@@ -132,6 +150,29 @@ class Process implements ProcessInterface
             }
         }
     }
+
+    /**
+     * Start and wait for the process to complete
+     */
+    public function run()
+    {
+        $this->start();
+        $this->wait();
+    }
+
+
+    /**
+     * Stops the process
+     * @param int $signal
+     * @return int
+     */
+    public function stop($signal = SIGTERM)
+    {
+        $this->signal($signal);
+        $this->updateStatus();
+        return $this->getExitCode();
+    }
+
 
     /**
      * {@inheritdoc}
@@ -221,6 +262,7 @@ class Process implements ProcessInterface
         }
         //The process stop its execution when the SIGTERM signal is received,
         pcntl_signal(SIGTERM, function(){
+            echo 'hello world';
             exit(0);
         });
     }
@@ -248,6 +290,9 @@ class Process implements ProcessInterface
                 $this->exitCode = pcntl_wexitstatus($status);
                 $this->errorMessage = pcntl_strerror($this->exitCode);
             }
+//            var_dump($status);
+//            var_dump(pcntl_wifsignaled($status));
+//            var_dump(pcntl_wifstopped($status));
             if (pcntl_wifsignaled($status)) {
                 $this->ifSignaled = true;
                 $this->termSignal = pcntl_wtermsig($status);
@@ -259,5 +304,37 @@ class Process implements ProcessInterface
         } else {
             $this->status = static::STATUS_RUNNING;
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSignaled()
+    {
+        return $this->ifSignaled;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTermSignal()
+    {
+        return $this->termSignal;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStopped()
+    {
+        return $this->ifStopped;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStopSignal()
+    {
+        return $this->stopSignal;
     }
 }
