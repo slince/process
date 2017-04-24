@@ -93,12 +93,13 @@ function sig_handler($signo)
 
 }
 
-
+pcntl_async_signals(true);
 
 //declare(ticks=1);
 pcntl_signal(SIGHUP, 'sig_handler');
 pcntl_signal(SIGTERM, 'sig_handler');
 pcntl_signal(SIGUSR1, 'sig_handler');
+pcntl_signal(SIGUSR2, SIG_IGN);
 
 $pid = pcntl_fork();
 
@@ -107,28 +108,41 @@ $pid = pcntl_fork();
 
 if ($pid > 0) {
 
+//    posix_kill($pid, SIGUSR2);
+
     while(true) {
-        $res = posix_kill($pid, SIGTERM);
-        $res = posix_kill($pid, SIGHUP);
-        $res = posix_kill($pid, SIGUSR1);
+//        $res = posix_kill($pid, SIGTERM);
+//        $res = posix_kill($pid, SIGHUP);
+        $res = posix_kill($pid, SIGUSR2);
         sleep(2);
     }
 
     pcntl_wait($status);
     var_dump($pid);
 
+    if (pcntl_wifexited($status)) {
+        echo 'nornal exit', PHP_EOL;
+        $exitCode = pcntl_wexitstatus($status);
+        var_dump($exitCode);
+    }
     if (pcntl_wifsignaled($status)) {
+        echo 'signal', PHP_EOL;
         $signal = pcntl_wtermsig($status);
+        var_dump($signal);
+    }
+    if (pcntl_wifstopped($status)) {
+        echo 'stoped', PHP_EOL;
+        $signal = pcntl_wstopsig($status);
         var_dump($signal);
     }
 } elseif ($pid == 0) {
 //    pcntl_signal(SIGTERM, 'sig_handler');
-    pcntl_signal(SIGHUP, function(){
+    pcntl_signal(SIGUSR2, function(){
         echo 'jixujixujixu',PHP_EOL;
     });
 //    pcntl_signal(SIGHUP, 'sig_handler');
     while(true) {
-        pcntl_signal_dispatch();
+//        pcntl_signal_dispatch();
         sleep(1);
     }
     echo '子进程执行完毕', PHP_EOL;
