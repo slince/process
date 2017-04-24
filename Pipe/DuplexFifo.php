@@ -8,7 +8,7 @@ namespace Slince\Process\Pipe;
 use Slince\Process\Exception\InvalidArgumentException;
 use Slince\Process\Exception\RuntimeException;
 
-class Fifo implements PipeInterface
+class DuplexFifo implements PipeInterface
 {
     /**
      * The path of fifo

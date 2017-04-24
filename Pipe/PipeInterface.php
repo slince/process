@@ -8,19 +8,25 @@ namespace Slince\Process\Pipe;
 interface PipeInterface
 {
     /**
-     * Read data from the pipe
+     * Reads data from the pipe
      * @param boolean $blocking
      * @return string
      */
-    public function read($blocking  = false);
+    public function read($blocking = null);
 
     /**
      * Write data to the pipe
-     * @param string $content
+     * @param string $message
      * @param boolean $blocking
      * @return string
      */
-    public function write($content, $blocking =  false);
+    public function write($message, $blocking = null);
+
+    /**
+     * Gets the stream of the pipe
+     * @return resource
+     */
+    public function getStream();
 
     /**
      * Close the pipe
