@@ -5,58 +5,58 @@
  */
 namespace Slince\Process\Pipe;
 
-use Slince\Process\Exception\InvalidArgumentException;
-use Slince\Process\Exception\RuntimeException;
-
-class DuplexFifo implements PipeInterface
+class DuplexFifo
 {
     /**
-     * The path of fifo
-     * @var string
-     */
-    protected $pathname;
-
-    /**
      * The read stream
-     * @var resource
+     * @var ReadableFifo
      */
-    protected $readStream;
+    protected $readFifo;
 
     /**
-     * The write strea,
-     * @var resource
+     * The write stream,
+     * @var WritableFifo
      */
-    protected $writeStream;
+    protected $writeFifo;
 
-    public function __construct($pathname, $mode  = 0666)
+    public function __construct($pathname, $readBlocking = true, $writeBlocking = false)
     {
-        if (($isExisted = file_exists($pathname)) && filetype($pathname) !== 'fifo') {
-            throw new InvalidArgumentException("The file already exists, but is not a valid fifo file");
-        } 
-        if (!$isExisted && !posix_mkfifo($pathname, $mode)) {
-            throw new RuntimeException("Cannot create the fifo file");
-        }
-        $this->pathname = $pathname;
+        $this->readFifo = new ReadableFifo($pathname, $readBlocking);
+        $this->writeFifo = new WritableFifo($pathname, $writeBlocking);
+    }
+
+    /**
+     * Sets the read fifo blocking mode
+     * @param boolean $blocking
+     */
+    public function setReadBlocking($blocking)
+    {
+        $this->readFifo->setBlocking($blocking);
+    }
+
+    /**
+     * Sets the read fifo blocking mode
+     * @param boolean $blocking
+     */
+    public function setWriteBlocking($blocking)
+    {
+        $this->writeFifo->setBlocking($blocking);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function read($size = 1024, $blocking = false)
+    public function read()
     {
-        $stream = $this->getReadStream();
-        stream_set_blocking($stream, $blocking);
-        return fread($stream, $size);
+        return $this->readFifo->read();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($message, $blocking = false)
+    public function write($message)
     {
-        $stream = $this->getWriteStream();
-        stream_set_blocking($stream, $blocking);
-        return fwrite($stream, $message, strlen($message));
+        return $this->writeFifo->write($message);
     }
 
     /**
@@ -64,32 +64,26 @@ class DuplexFifo implements PipeInterface
      */
     public function close()
     {
-        @fclose($this->readStream);
-        @fclose($this->writeStream);
+        is_null($this->readFifo) || $this->readFifo->close();
+        is_null($this->writeFifo) || $this->writeFifo->close();
     }
 
     /**
-     * Gets the read stream
-     * @return bool|resource
+     * Gets the read-only fifo
+     * @return ReadableFifo
      */
-    protected function getReadStream()
+    public function getReadFifo()
     {
-        if (!is_null($this->readStream)) {
-            return $this->readStream;
-        }
-        return $this->readStream = fopen($this->pathname,  'r+');
+        return $this->readFifo;
     }
 
     /**
-     * Gets the write stream
-     * @return bool|resource
+     * Gets the write-only fifo
+     * @return WritableFifo
      */
-    protected function getWriteStream()
+    public function getWriteFifo()
     {
-        if (!is_null($this->writeStream)) {
-            return $this->writeStream;
-        }
-        return $this->writeStream = fopen($this->pathname,  'w+');
+        return $this->writeFifo;
     }
 
     public function __destruct()

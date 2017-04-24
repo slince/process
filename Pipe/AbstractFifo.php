@@ -52,4 +52,13 @@ abstract class AbstractFifo implements PipeInterface
     {
         is_resource($this->stream) && fclose($this->stream);
     }
+
+    /**
+     * Sets the blocking mode
+     * @param boolean $blocking
+     */
+    public function setBlocking($blocking)
+    {
+        $this->blocking = $blocking;
+    }
 }

@@ -5,17 +5,21 @@
  */
 namespace Slince\Process\Pipe;
 
-
 use Slince\Process\Exception\RuntimeException;
 
-class WriteableFifo extends AbstractFifo
+class WritableFifo extends AbstractFifo
 {
+    public function __construct($pathname, $blocking, $mode = 'w+', $permission = 0666)
+    {
+        parent::__construct($pathname, $blocking, $mode, $permission);
+    }
+
     /**
      * {@inheritdoc}
      */
     public function read($blocking = null)
     {
-        throw new RuntimeException("Cannot write some data to an readable fifo");
+        throw new RuntimeException("Cannot read data from an write-only fifo");
     }
 
     /**
