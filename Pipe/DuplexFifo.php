@@ -19,7 +19,7 @@ class DuplexFifo
      */
     protected $writeFifo;
 
-    public function __construct($pathname, $readBlocking = true, $writeBlocking = false)
+    public function __construct($pathname, $readBlocking = true, $writeBlocking = true)
     {
         $this->readFifo = new ReadableFifo($pathname, $readBlocking);
         $this->writeFifo = new WritableFifo($pathname, $writeBlocking);

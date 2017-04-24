@@ -5,7 +5,6 @@
  */
 namespace Slince\Process\Pipe;
 
-
 use Slince\Process\Exception\RuntimeException;
 
 class ReadableFifo extends AbstractFifo

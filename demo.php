@@ -96,7 +96,7 @@ function sig_handler($signo)
 
 
 //declare(ticks=1);
-//pcntl_signal(SIGHUP, 'sig_handler');
+pcntl_signal(SIGHUP, 'sig_handler');
 pcntl_signal(SIGTERM, 'sig_handler');
 pcntl_signal(SIGUSR1, 'sig_handler');
 

@@ -5,7 +5,6 @@
  */
 namespace Slince\Process\SignalHandler;
 
-
 class SignalHandler
 {
     /**
