@@ -9,7 +9,7 @@ use Slince\Process\Exception\RuntimeException;
 
 class WritableFifo extends AbstractFifo
 {
-    public function __construct($pathname, $blocking, $mode = 'w+', $permission = 0666)
+    public function __construct($pathname, $blocking = true, $mode = 'w+', $permission = 0666)
     {
         parent::__construct($pathname, $blocking, $mode, $permission);
     }
@@ -17,7 +17,7 @@ class WritableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function read($blocking = null)
+    public function read()
     {
         throw new RuntimeException("Cannot read data from an write-only fifo");
     }
@@ -25,11 +25,29 @@ class WritableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function write($message, $blocking = null)
+    public function write($message)
     {
-        $blocking = is_null($blocking) ? $this->blocking : $blocking;
         $stream = $this->getStream();
-        stream_set_blocking($stream,false);
         return fwrite($stream, $message, strlen($message));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getStream()
+    {
+        $stream = parent::getStream();
+        if ($this->blocking === false) {
+            stream_set_blocking($stream,false);
+        }
+        return $stream;
+    }
+
+    public function setBlocking($blocking)
+    {
+        parent::setBlocking($blocking);
+        if (!is_null($this->stream)) {
+            stream_set_blocking($this->stream,$blocking);
+        }
     }
 }

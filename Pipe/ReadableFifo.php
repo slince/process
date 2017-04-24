@@ -10,7 +10,7 @@ use Slince\Process\Exception\RuntimeException;
 
 class ReadableFifo extends AbstractFifo
 {
-    public function __construct($pathname, $blocking, $mode = 'r+', $permission = 0666)
+    public function __construct($pathname, $blocking = true, $mode = 'r+', $permission = 0666)
     {
         parent::__construct($pathname, $blocking, $mode, $permission);
     }
@@ -18,11 +18,10 @@ class ReadableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function read($blocking = null)
+    public function read()
     {
-        $blocking = is_null($blocking) ? $this->blocking : $blocking;
         $stream = $this->getStream();
-        if ($blocking) {
+        if ($this->blocking) {
             $read = [$stream];
             $write = [];
             $except = [];

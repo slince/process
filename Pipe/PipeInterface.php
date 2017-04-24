@@ -9,18 +9,16 @@ interface PipeInterface
 {
     /**
      * Reads data from the pipe
-     * @param boolean $blocking
      * @return string
      */
-    public function read($blocking = null);
+    public function read();
 
     /**
      * Write data to the pipe
      * @param string $message
-     * @param boolean $blocking
      * @return string
      */
-    public function write($message, $blocking = null);
+    public function write($message);
 
     /**
      * Gets the stream of the pipe

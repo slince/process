@@ -28,7 +28,7 @@ if ($pid > 0) {
 //    stream_set_blocking($fifo, false);
 //    $message = fread($fifo, 1024);
 
-    $message = stream_get_contents($fifo);
+//    $message = stream_get_contents($fifo);
 //    if (stream_select($read, $write, $except, $timeout) > 0) {
 ////        $message = fread($fifo, 1024);
 //        $message = stream_get_contents($fifo);
@@ -39,9 +39,10 @@ if ($pid > 0) {
     pcntl_wait($status);
 } elseif($pid == 0) {
 
-    $fifo = fopen($path, 'w');
-//    $result = fwrite($fifo, 'hello');
-//    var_dump($result);
+    $fifo = fopen($path, 'w+');
+    stream_set_blocking($fifo, true);
+    $result = fwrite($fifo, str_repeat('hello', 102000));
+    var_dump($result);
     echo 'send ok', PHP_EOL;
     sleep(5);
     exit();
