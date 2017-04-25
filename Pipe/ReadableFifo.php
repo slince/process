@@ -34,7 +34,7 @@ class ReadableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function write($content, $blocking = false)
+    public function write($message)
     {
         throw new RuntimeException("Cannot write some data to an write-only fifo");
     }
@@ -48,5 +48,4 @@ class ReadableFifo extends AbstractFifo
         stream_set_blocking($stream,false);
         return $stream;
     }
-
 }

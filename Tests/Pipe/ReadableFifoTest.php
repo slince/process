@@ -2,6 +2,7 @@
 namespace Slince\Process\Tests\Pipe;
 
 use PHPUnit\Framework\TestCase;
+use Slince\Process\Exception\RuntimeException;
 use Slince\Process\Pipe\ReadableFifo;
 
 class ReadableFifoTest extends TestCase
@@ -34,6 +35,27 @@ class ReadableFifoTest extends TestCase
         $this->syncExecute(sprintf("php %s %s %d", __DIR__ . '/WriteFifo.php', 'hello', 2));
         $fifo = new ReadableFifo('/tmp/test1.pipe', true);
         $this->assertEquals('hello', $fifo->read());
+    }
+
+    public function testWrite()
+    {
+        $fifo = new ReadableFifo('/tmp/test1.pipe');
+        $this->setExpectedException(RuntimeException::class);
+        $fifo->write('some message');
+    }
+
+    public function testGetStream()
+    {
+        $fifo = new ReadableFifo('/tmp/test1.pipe');
+        $this->assertTrue(is_resource($fifo->getStream()));
+    }
+
+    public function testIsBlocking()
+    {
+        $fifo = new ReadableFifo('/tmp/test1.pipe');
+        $this->assertTrue($fifo->isBlocking());
+        $fifo->setBlocking(false);
+        $this->assertFalse($fifo->isBlocking());
     }
 
     protected function syncExecute($command)

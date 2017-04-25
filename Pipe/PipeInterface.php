@@ -31,4 +31,16 @@ interface PipeInterface
      * @return void
      */
     public function close();
+
+    /**
+     * Sets the blocking mode
+     * @param boolean $blocking
+     */
+    public function setBlocking($blocking);
+
+    /**
+     * Returns whether the pipe is blocking
+     * @return boolean
+     */
+    public function isBlocking();
 }

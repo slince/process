@@ -1,5 +1,7 @@
 <?php
-namespace Slince\Process\Tests\Pipe;
+include __DIR__ . '/FifoUtils.php';
+
+use Slince\Process\Tests\Pipe\FifoUtils;
 
 /**
  * Writes some data to pipe
@@ -7,8 +9,9 @@ namespace Slince\Process\Tests\Pipe;
  */
 
 $fifo = FifoUtils::makeNativeWriteFifo('/tmp/test1.pipe');
+
 $message = $argv[1];
-$writedBytes = fwrite($fifo, $message);
+fwrite($fifo, $message);
 
 $sleep = isset($argv[2]) ? $argv[2] : 0;
 if ($sleep) {

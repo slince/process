@@ -54,11 +54,18 @@ abstract class AbstractFifo implements PipeInterface
     }
 
     /**
-     * Sets the blocking mode
-     * @param boolean $blocking
+     * {@inheritdoc}
      */
     public function setBlocking($blocking)
     {
         $this->blocking = $blocking;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isBlocking()
+    {
+        return $this->blocking;
     }
 }

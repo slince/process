@@ -41,7 +41,7 @@ class WritableFifoTest extends TestCase
 
     public function testBlockingWrite()
     {
-        $fifo = new WritableFifo('/tmp/test2.pipe', false);
+        $fifo = new WritableFifo('/tmp/test2.pipe', true);
         $bytes = $fifo->write(str_repeat('a', 65500));
         $this->assertEquals(65500, $bytes);
 
@@ -51,6 +51,20 @@ class WritableFifoTest extends TestCase
         $this->assertEquals(65500, $bytes);
 
         $fifo->close();
+    }
+
+    public function testGetStream()
+    {
+        $fifo = new WritableFifo('/tmp/test2.pipe');
+        $this->assertTrue(is_resource($fifo->getStream()));
+    }
+
+    public function testIsBlocking()
+    {
+        $fifo = new WritableFifo('/tmp/test2.pipe');
+        $this->assertTrue($fifo->isBlocking());
+        $fifo->setBlocking(false);
+        $this->assertFalse($fifo->isBlocking());
     }
 
     protected function syncExecute($command)

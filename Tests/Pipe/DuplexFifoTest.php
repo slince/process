@@ -9,7 +9,15 @@ class DuplexFifoTest extends TestCase
     public function testRead()
     {
         $pathname = '/tmp/test3.pipe';
-        $fifo = new DuplexFifo($pathname, true, true);
+        $nativeFifo = FifoUtils::makeNativeWriteFifo($pathname);
+        fwrite($nativeFifo, 'hello');
+
+        $fifo = new DuplexFifo($pathname);
+        $this->assertEquals('hello', $fifo->read());
+    }
+
+    public function testNonBlockingRead()
+    {
 
     }
 }

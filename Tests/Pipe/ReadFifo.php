@@ -1,5 +1,7 @@
 <?php
-namespace Slince\Process\Tests\Pipe;
+include __DIR__ . '/FifoUtils.php';
+
+use Slince\Process\Tests\Pipe\FifoUtils;
 
 /**
  * Read some data form pipe
@@ -12,5 +14,5 @@ if ($sleep) {
 }
 $size = $argv[1];
 $fifo = FifoUtils::makeNativeReadFifo('/tmp/test2.pipe');
-$writedBytes = fread($fifo, $size);
+fread($fifo, $size);
 exit;
