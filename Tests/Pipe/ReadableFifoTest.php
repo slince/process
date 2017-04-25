@@ -15,7 +15,7 @@ class ReadableFifoTest extends TestCase
 
     public function testSimpleRead()
     {
-        $writeFifo = $this->makeWriteFifo();
+        $writeFifo = FifoUtils::makeNativeWriteFifo('/tmp/test1.pipe');
         $writeBytes = fwrite($writeFifo, 'hello');
         $this->assertEquals(5, $writeBytes);
         $fifo = new ReadableFifo('/tmp/test1.pipe', false);
@@ -36,21 +36,9 @@ class ReadableFifoTest extends TestCase
         $this->assertEquals('hello', $fifo->read());
     }
 
-    protected function makeWriteFifo()
-    {
-        $pathname = '/tmp/test1.pipe';
-        if (!file_exists($pathname)) {
-            posix_mkfifo($pathname, 0666);
-        }
-        $fifo = fopen($pathname, 'w+');
-        return $fifo;
-    }
-
     protected function syncExecute($command)
     {
-        $this->lastPd = popen($command, 'r');
-        stream_set_blocking($this->lastPd, false);
-        return $this->lastPd;
+        $this->lastPd = FifoUtils::asyncExecute($command);
     }
 
     public function tearDown()
