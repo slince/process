@@ -5,6 +5,7 @@ use PHPUnit\Framework\TestCase;
 use Slince\Process\Pipe\DuplexFifo;
 use Slince\Process\Pipe\ReadableFifo;
 use Slince\Process\Pipe\WritableFifo;
+use Slince\Process\Tests\Utils;
 
 class DuplexFifoTest extends TestCase
 {

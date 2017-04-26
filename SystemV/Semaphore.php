@@ -13,6 +13,12 @@ class Semaphore
     use IpcKeyTrait;
 
     /**
+     * Whether the semaphore is locked
+     * @var boolean
+     */
+    protected $locked;
+
+    /**
      * The resource that can be used to access the System V semaphore
      * @var resource
      */
@@ -38,9 +44,14 @@ class Semaphore
             if (version_compare(PHP_VERSION, '5.6.1') < 0) {
                 throw new InvalidArgumentException("Semaphore requires php version greater than 5.6.1 when using blocking");
             }
-            return sem_acquire($this->semId, !$blocking);
+            $result = sem_acquire($this->semId, !$blocking);
+        } else {
+            $result = sem_acquire($this->semId);
         }
-        return sem_acquire($this->semId);
+        if ($result) {
+            $this->locked = true;
+        }
+        return $result;
     }
 
     /**
@@ -49,7 +60,11 @@ class Semaphore
      */
     public function release()
     {
-        return sem_release($this->semId);
+        if ($this->locked && sem_release($this->semId)) {
+            $this->locked = false;
+            return true;
+        }
+        return false;
     }
 
     /**

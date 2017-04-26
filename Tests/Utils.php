@@ -1,5 +1,5 @@
 <?php
-namespace Slince\Process\Tests\Pipe;
+namespace Slince\Process\Tests;
 
 
 final class Utils

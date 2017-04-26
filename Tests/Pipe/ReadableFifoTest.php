@@ -4,6 +4,7 @@ namespace Slince\Process\Tests\Pipe;
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Exception\RuntimeException;
 use Slince\Process\Pipe\ReadableFifo;
+use Slince\Process\Tests\Utils;
 
 class ReadableFifoTest extends TestCase
 {

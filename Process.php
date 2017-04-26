@@ -118,16 +118,6 @@ class Process implements ProcessInterface
             $this->status = static::STATUS_RUNNING;
         } else {
             $this->pid = posix_getpid();
-
-            var_dump($this->pid);
-            $res = pcntl_signal(SIGTERM, function(){
-                echo 'hello world';
-                exit(0);
-            });
-
-            var_dump($res);
-
-//            $this->installSignalHandlers();
             try {
                 $exitCode = call_user_func($this->callback);
             } catch (\Exception $e) {
@@ -262,7 +252,6 @@ class Process implements ProcessInterface
         }
         //The process stop its execution when the SIGTERM signal is received,
         pcntl_signal(SIGTERM, function(){
-            echo 'hello world';
             exit(0);
         });
     }
@@ -290,9 +279,6 @@ class Process implements ProcessInterface
                 $this->exitCode = pcntl_wexitstatus($status);
                 $this->errorMessage = pcntl_strerror($this->exitCode);
             }
-//            var_dump($status);
-//            var_dump(pcntl_wifsignaled($status));
-//            var_dump(pcntl_wifstopped($status));
             if (pcntl_wifsignaled($status)) {
                 $this->ifSignaled = true;
                 $this->termSignal = pcntl_wtermsig($status);

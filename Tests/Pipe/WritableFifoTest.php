@@ -3,6 +3,7 @@ namespace Slince\Process\Tests\Pipe;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Pipe\WritableFifo;
+use Slince\Process\Tests\Utils;
 
 class WritableFifoTest extends TestCase
 {
