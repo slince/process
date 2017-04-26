@@ -18,7 +18,7 @@ class DuplexFifoTest extends TestCase
     public function testRead()
     {
         $pathname = '/tmp/test1.pipe';
-        $nativeFifo = FifoUtils::makeNativeWriteFifo($pathname);
+        $nativeFifo = Utils::makeNativeWriteFifo($pathname);
         fwrite($nativeFifo, 'hello');
 
         $fifo = new DuplexFifo($pathname);
@@ -85,7 +85,7 @@ class DuplexFifoTest extends TestCase
 
     protected function syncExecute($command)
     {
-        $this->lastPd = FifoUtils::asyncExecute($command);
+        $this->lastPd = Utils::asyncExecute($command);
     }
 
     public function tearDown()

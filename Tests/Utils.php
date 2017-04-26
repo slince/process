@@ -2,7 +2,7 @@
 namespace Slince\Process\Tests\Pipe;
 
 
-final class FifoUtils
+final class Utils
 {
     protected static $pd;
 

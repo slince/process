@@ -1,14 +1,14 @@
 <?php
-include __DIR__ . '/FifoUtils.php';
+include __DIR__ . '/Utils.php';
 
-use Slince\Process\Tests\Pipe\FifoUtils;
+use Slince\Process\Tests\Pipe\Utils;
 
 /**
  * Writes some data to pipe
  * command like "php ./WriteFifo hello 2"
  */
 
-$fifo = FifoUtils::makeNativeWriteFifo('/tmp/test1.pipe');
+$fifo = Utils::makeNativeWriteFifo('/tmp/test1.pipe');
 
 $message = $argv[1];
 fwrite($fifo, $message);

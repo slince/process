@@ -16,7 +16,7 @@ class ReadableFifoTest extends TestCase
 
     public function testSimpleRead()
     {
-        $writeFifo = FifoUtils::makeNativeWriteFifo('/tmp/test1.pipe');
+        $writeFifo = Utils::makeNativeWriteFifo('/tmp/test1.pipe');
         $writeBytes = fwrite($writeFifo, 'hello');
         $this->assertEquals(5, $writeBytes);
         $fifo = new ReadableFifo('/tmp/test1.pipe', false);
@@ -60,7 +60,7 @@ class ReadableFifoTest extends TestCase
 
     protected function syncExecute($command)
     {
-        $this->lastPd = FifoUtils::asyncExecute($command);
+        $this->lastPd = Utils::asyncExecute($command);
     }
 
     public function tearDown()
