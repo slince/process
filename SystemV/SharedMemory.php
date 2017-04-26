@@ -21,11 +21,15 @@ class SharedMemory
      */
     protected $size;
 
-    public function __construct($size, $pathname = __FILE__)
+    public function __construct($pathname = __FILE__, $size = null, $permission = 0666)
     {
-        $this->size = static::humanReadableToBytes($size);
+        if (!is_null($size)) {
+            $this->size = static::humanReadableToBytes($size);
+        } else {
+            $this->size = ini_get('sysvshm.init_mem') ?: 10000;
+        }
         $ipcKey = $this->generateIpcKey($pathname);
-        $this->shmId = shm_attach($ipcKey, $size);
+        $this->shmId = shm_attach($ipcKey, $this->size, $permission);
     }
 
     /**
@@ -74,8 +78,26 @@ class SharedMemory
      */
     public function clear()
     {
-        shm_remove($this->shmId);
+        return shm_remove($this->shmId);
     }
+
+    /**
+     * Checks whether the memory is enabled
+     * @return bool
+     */
+    public function isEnabled()
+    {
+        return is_resource($this->shmId);
+    }
+
+    /**
+     * Disconnects from shared memory
+     */
+    public function close()
+    {
+        is_resource($this->shmId) && shm_detach($this->shmId);
+    }
+
 
     /**
      * Removes all items and disconnects from shared memory
@@ -83,9 +105,10 @@ class SharedMemory
      */
     public function destroy()
     {
-        shm_remove($this->shmId);
-        shm_detach($this->shmId);
-        unlink($this->shmId);
+        if (is_resource($this->shmId)) {
+            shm_remove($this->shmId);
+            shm_detach($this->shmId);
+        }
     }
 
     /**

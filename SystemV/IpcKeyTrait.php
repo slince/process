@@ -5,6 +5,8 @@
  */
 namespace Slince\Process\SystemV;
 
+use Slince\Process\Exception\RuntimeException;
+
 trait IpcKeyTrait
 {
     /**
@@ -15,6 +17,12 @@ trait IpcKeyTrait
      */
     public function generateIpcKey($pathname, $projectId = 'p')
     {
-        return is_numeric($pathname) ? $pathname : ftok($pathname, $projectId);
+        if (is_numeric($pathname)) {
+            return $pathname;
+        }
+        if (!file_exists($pathname) && !touch($pathname)) {
+            throw new RuntimeException(sprintf("Cannot create the files [%s]", $pathname));
+        }
+        return ftok($pathname, $projectId);
     }
 }

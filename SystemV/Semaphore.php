@@ -6,6 +6,7 @@
 namespace Slince\Process\SystemV;
 
 use Slince\Process\Exception\InvalidArgumentException;
+use Slince\Process\Exception\RuntimeException;
 
 class Semaphore
 {
@@ -17,10 +18,12 @@ class Semaphore
      */
     protected $semId;
 
-    public function __construct($pathname = __FILE__)
+    public function __construct($pathname = __FILE__, $maxAcquireNum = 1, $permission = 0666)
     {
         $ipcKey = $this->generateIpcKey($pathname);
-        $this->semId = sem_get($ipcKey);
+        if (!($this->semId = sem_get($ipcKey, $maxAcquireNum, $permission))) {
+            throw new RuntimeException("Cannot get semaphore identifier");
+        }
     }
 
     /**
