@@ -23,9 +23,9 @@ class MessageQueue
      */
     protected $messageType;
 
-    protected $serialize = true;
+    protected $unserialize = true;
 
-    public function __construct($messageType, $pathname = __FILE__, $mode = 0666)
+    public function __construct($messageType = 1, $pathname = __FILE__, $mode = 0666)
     {
         $this->messageType = $messageType;
         $ipcKey = $this->generateIpcKey($pathname);
@@ -40,7 +40,9 @@ class MessageQueue
      */
     public function send($message, $blocking = true)
     {
-        if (!msg_send($this->mqId, $this->messageType, $message, $this->serialize, $blocking, $errorCode)) {
+        if (!msg_send($this->mqId, $this->messageType, $message,
+            $this->unserialize, $blocking, $errorCode)
+        ) {
             throw new RuntimeException("Failed to send the message to the queue", $errorCode);
         }
         return true;
@@ -50,19 +52,17 @@ class MessageQueue
      * Gets the message from the queue
      * @param bool $blocking
      * @param int $maxSize The max size you want receive(Unit:bytes)
-     * @return string
+     * @return string|false
      */
     public function receive($blocking = true, $maxSize = 10240)
     {
-        $maxSize = 10;
         $flags = $blocking ? 0 : MSG_IPC_NOWAIT;
         if (msg_receive($this->mqId, $this->messageType,
-            $messageType, $maxSize, $message, $this->serialize, $flags, $errorCode)
+            $realMessageType, $maxSize, $message, $this->unserialize, $flags, $errorCode)
         ) {
             return $message;
-        } else {
-            throw new RuntimeException("Cannot receive any message from the queue", $errorCode);
         }
+        return false;
     }
 
     /**

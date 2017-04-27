@@ -9,7 +9,7 @@ class Status
 {
     protected $status;
 
-    protected $isExited;
+    protected $isExited = false;
 
     /**
      * exit code
@@ -27,7 +27,7 @@ class Status
      * If the signal that caused the process to terminate
      * @var boolean
      */
-    protected $isSignaled;
+    protected $isSignaled = false;
 
     /**
      * The signal that caused the process to terminate
@@ -39,7 +39,7 @@ class Status
      * The process If stopped
      * @var bool
      */
-    protected $isStopped;
+    protected $isStopped = false;
 
     /**
      * The signal that caused the process to stop
@@ -65,7 +65,7 @@ class Status
     }
 
     /**
-     * Checks whether the process has been exited
+     * Checks if status code represents a normal exit.
      * @return bool
      */
     public function isExited()
@@ -74,6 +74,7 @@ class Status
     }
 
     /**
+     * Gets the exit code if the process is exited normally
      * @return int
      */
     public function getExitCode()

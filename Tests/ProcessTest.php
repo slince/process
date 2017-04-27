@@ -32,28 +32,15 @@ class ProcessTest extends TestCase
         $process = new Process(function(){
             usleep(100);
         });
-        $process->start();
-        $process->wait();
+        $this->assertNull($process->getExitCode());
+        $process->run();
         $this->assertEquals(0, $process->getExitCode());
-
         $process = new Process(function(){
             exit(255);
         });
         $process->run();
         $this->assertEquals(255, $process->getExitCode());
     }
-
-    public function testIfSignaled()
-    {
-        $process = new Process(function(){
-            sleep(100);
-        });
-        $process->start();
-        $process->stop();
-        $this->assertTrue($process->isSignaled());
-        $this->assertTrue($process->isStopped());
-    }
-
 
     public function testGetPid()
     {
@@ -65,4 +52,18 @@ class ProcessTest extends TestCase
         $this->assertGreaterThan(0, $process->getPid());
         $process->wait();
     }
+
+
+    public function testIfSignaled()
+    {
+        $process = new Process(function(){
+            sleep(1);
+        });
+        $process->start();
+        $process->stop();
+        $this->assertTrue($process->getStatus()->isSignaled());
+        $this->assertEquals(SIGKILL, $process->getStatus()->getTerminateSignal());
+    }
+
+
 }

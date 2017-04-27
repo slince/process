@@ -35,4 +35,11 @@ interface ProcessInterface
      * @return bool
      */
     public function isRunning();
+
+    /**
+     * Stops the current process
+     * @param int $signal
+     * @return bool
+     */
+    public function stop($signal = SIGKILL);
 }

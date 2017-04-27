@@ -118,17 +118,13 @@ class Process implements ProcessInterface
     }
 
     /**
-     * Stops the process
-     * @param int $signal
-     * @return int
+     * {@inheritdoc}
      */
-    public function stop($signal = SIGTERM)
+    public function stop($signal = SIGKILL)
     {
         $this->signal($signal);
-        $this->updateStatus();
-        return $this->getExitCode();
+        $this->updateStatus(true);
     }
-
 
     /**
      * {@inheritdoc}
@@ -150,6 +146,21 @@ class Process implements ProcessInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function isRunning()
+    {
+        //if process is not running, return false
+        if (!$this->isRunning) {
+            return false;
+        }
+        //if the process is running, update process status again
+        $this->updateStatus(false);
+        return $this->isRunning;
+    }
+
+    /**
+     * Gets the signal handler
      * @return SignalHandler
      */
     public function getSignalHandler()
@@ -164,20 +175,6 @@ class Process implements ProcessInterface
     public function getExitCode()
     {
         return $this->status ? $this->status->getExitCode() : null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isRunning()
-    {
-        //if process is not running, return false
-        if (!$this->isRunning) {
-            return false;
-        }
-        //update child process status
-        $this->updateStatus(false);
-        return $this->isRunning;
     }
 
     /**

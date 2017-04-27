@@ -2,27 +2,24 @@
 include __DIR__ . '/vendor/autoload.php';
 
 use Slince\Process\Process;
-use Slince\Process\Pipe\Pipe;
 
-$message = 'The message from main process';
-
-
-$path = __FILE__;
-
-
-$process = new Process(function() use($path){
-    $semaphore =  new \Slince\Process\SystemV\Semaphore($path);
-    $semaphore->acquire();
-    echo 'child', PHP_EOL;
-    sleep(5);
-    $semaphore->release();
-    exit(0);
+$process = new Process(function(){
+    sleep(1);
+    throw new RuntimeException('hahaha');
 });
+
+
+
+$process->getSignalHandler()->register(SIGTERM, function(){
+    echo "hello, i'm " . getmypid(), PHP_EOL;
+});
+
+$process->getSignalHandler()->register(SIGTERM, SIG_IGN);
+
 $process->start();
 
-sleep(2);
-$semaphore =  new \Slince\Process\SystemV\Semaphore($path);
-$result = $semaphore->acquire(false);
-var_dump($result);
+$process->signal(SIGTERM);
 
 $process->wait();
+
+var_dump($process->getStatus()->isStopped());

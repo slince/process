@@ -25,16 +25,33 @@ class SemaphoreTest extends TestCase
     public function testMutex()
     {
         $process = new Process(function () {
-            $semaphore = new Semaphore('/tmp/foo');
+            $semaphore = new Semaphore();
             $semaphore->acquire();
             sleep(2);
             $semaphore->release();
         });
         $process->start();
-        $semaphore = new Semaphore('/tmp/foo');
+        sleep(1);
+        $semaphore = new Semaphore();
         $this->assertFalse($semaphore->acquire(false));
         $process->wait();
         $this->assertTrue($semaphore->acquire(false));
         $semaphore->release();
+    }
+
+    public function testBlockingMutex()
+    {
+        $process = new Process(function () {
+            $semaphore = new Semaphore();
+            $semaphore->acquire();
+            sleep(2);
+            $semaphore->release();
+        });
+        $process->start();
+        sleep(1);
+        $semaphore = new Semaphore();
+        $this->assertTrue($semaphore->acquire(true));
+        $semaphore->release();
+        $process->wait();
     }
 }

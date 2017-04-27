@@ -12,7 +12,7 @@ class SignalHandler
     /**
      * Registers a callback for some signals
      * @param int|array $signals a signal or an array of signals
-     * @param callable $callback a callback
+     * @param callable|int $callback a callback
      * @return SignalHandler;
      */
     public function register($signals, $callback)
@@ -49,8 +49,8 @@ class SignalHandler
      */
     protected function setSignalHandler($signal, $callback)
     {
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException('The signal handler should be callable');
+        if (!is_int($callback) && !is_callable($callback)) {
+            throw new InvalidArgumentException('The signal handler should be called or a number');
         }
         pcntl_signal($signal, $callback);
     }
