@@ -27,22 +27,6 @@ class SignalHandler
     }
 
     /**
-     * unregisters handlers for signals
-     * @param $signals
-     * @return $this
-     */
-    public function unregister($signals)
-    {
-        if (!is_array($signals)) {
-            $signals = [$signals];
-        }
-        foreach ($signals as $signal) {
-            $this->removeSignalHandler($signal);
-        }
-        return $this;
-    }
-
-    /**
      * Register a callback for
      * @param $signal
      * @param $callback
@@ -53,14 +37,6 @@ class SignalHandler
             throw new InvalidArgumentException('The signal handler should be called or a number');
         }
         pcntl_signal($signal, $callback);
-    }
-
-    /**
-     * @param $signal
-     */
-    protected function removeSignalHandler($signal)
-    {
-        pcntl_signal($signal, SIG_DFL);
     }
 
     /**

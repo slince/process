@@ -3,6 +3,8 @@ namespace Slince\Process\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Process;
+use Slince\Process\SignalHandler;
+use Slince\Process\Status;
 
 class ProcessTest extends TestCase
 {
@@ -65,5 +67,21 @@ class ProcessTest extends TestCase
         $this->assertEquals(SIGKILL, $process->getStatus()->getTerminateSignal());
     }
 
+    public function testGetSignalHandler()
+    {
+        $process = new Process(function(){
+            sleep(1);
+        });
+        $this->assertInstanceOf(SignalHandler::class, $process->getSignalHandler());
+    }
 
+    public function testGetStatus()
+    {
+        $process = new Process(function(){
+            sleep(1);
+        });
+        $this->assertNull($process->getStatus());
+        $process->run();
+        $this->assertInstanceOf(Status::class, $process->getStatus());
+    }
 }
