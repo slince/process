@@ -3,7 +3,9 @@
  * Process Library
  * @author Tao <taosikai@yeah.net>
  */
-namespace Slince\Process\SignalHandler;
+namespace Slince\Process;
+
+use Slince\Process\Exception\InvalidArgumentException;
 
 class SignalHandler
 {
@@ -47,6 +49,9 @@ class SignalHandler
      */
     protected function setSignalHandler($signal, $callback)
     {
+        if (!is_callable($callback)) {
+            throw new InvalidArgumentException('The signal handler should be callable');
+        }
         pcntl_signal($signal, $callback);
     }
 
@@ -56,6 +61,16 @@ class SignalHandler
     protected function removeSignalHandler($signal)
     {
         pcntl_signal($signal, SIG_DFL);
+    }
+
+    /**
+     * Gets the handler for a signal
+     * @param $signal
+     * @return int|string
+     */
+    public function getHandler($signal)
+    {
+        return pcntl_signal_get_handler($signal);
     }
 
 

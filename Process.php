@@ -35,52 +35,22 @@ class Process implements ProcessInterface
     protected $pid;
 
     /**
-     * signal handlers
-     * @var array
+     * Whether the process is running
+     * @var bool
      */
-    protected $signalHandlers = [];
+    protected $isRunning = false;
+
+    /**
+     * signal handler
+     * @var SignalHandler
+     */
+    protected $signalHandler;
 
     /**
      * current status
-     * @var string
+     * @var Status
      */
     protected $status;
-
-    /**
-     * exit code
-     * @var int
-     */
-    protected $exitCode;
-
-    /**
-     * error message
-     * @var string
-     */
-    protected $errorMessage;
-
-    /**
-     * If the signal that caused the process to terminate
-     * @var boolean
-     */
-    protected $ifSignaled;
-
-    /**
-     * The signal that caused the process to terminate
-     * @var int
-     */
-    protected $termSignal;
-
-    /**
-     * The process If stopped
-     * @var bool
-     */
-    protected $ifStopped;
-
-    /**
-     * The signal that caused the process to stop
-     * @var int
-     */
-    protected $stopSignal;
 
     public function __construct($callback)
     {
@@ -91,6 +61,7 @@ class Process implements ProcessInterface
             throw new InvalidArgumentException("Process expects a callable callback");
         }
         $this->callback = $callback;
+        $this->signalHandler = SignalHandler::create();
     }
 
     /**
@@ -115,7 +86,7 @@ class Process implements ProcessInterface
             throw new RuntimeException("Could not fork");
         } elseif ($pid) { //Records the pid of the child process
             $this->pid = $pid;
-            $this->status = static::STATUS_RUNNING;
+            $this->isRunning = true;
         } else {
             $this->pid = posix_getpid();
             try {
@@ -132,12 +103,8 @@ class Process implements ProcessInterface
      */
     public function wait()
     {
-        while (true) {
-            if ($this->isRunning()) {
-                usleep(1000);
-            } else {
-                break;
-            }
+        if ($this->isRunning()) {
+            $this->updateStatus(true);
         }
     }
 
@@ -149,7 +116,6 @@ class Process implements ProcessInterface
         $this->start();
         $this->wait();
     }
-
 
     /**
      * Stops the process
@@ -184,21 +150,20 @@ class Process implements ProcessInterface
     }
 
     /**
+     * @return SignalHandler
+     */
+    public function getSignalHandler()
+    {
+        return $this->signalHandler;
+    }
+
+    /**
      * Gets the exit code of the process
      * @return int
      */
     public function getExitCode()
     {
-        return $this->exitCode;
-    }
-
-    /**
-     * Gets the error message for the exit code
-     * @return string
-     */
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
+        return $this->status ? $this->status->getExitCode() : null;
     }
 
     /**
@@ -207,55 +172,13 @@ class Process implements ProcessInterface
     public function isRunning()
     {
         //if process is not running, return false
-        if ($this->status != static::STATUS_RUNNING) {
+        if (!$this->isRunning) {
             return false;
         }
         //update child process status
         $this->updateStatus(false);
-        return $this->status == static::STATUS_RUNNING;
+        return $this->isRunning;
     }
-
-    /**
-     * Sets the handler for a signal
-     * @param int $signal
-     * @param callable $handler
-     */
-    public function setSignalHandler($signal, $handler)
-    {
-        if (!is_callable($handler)) {
-            throw new InvalidArgumentException('The signal handler should be callable');
-        }
-        $this->signalHandlers[$signal] = $handler;
-    }
-
-    /**
-     * Gets the handler for a signal
-     * @param $signal
-     * @return int|string
-     */
-    public function getSignalHandler($signal)
-    {
-        if (isset($this->signalHandlers[$signal])) {
-            return $this->signalHandlers[$signal];
-        }
-        return pcntl_signal_get_handler($signal);
-    }
-
-    /**
-     * Installs all signal handlers
-     * @return void
-     */
-    protected function installSignalHandlers()
-    {
-        foreach ($this->signalHandlers as $signal => $signalHandler) {
-            pcntl_signal($signal, $signalHandler);
-        }
-        //The process stop its execution when the SIGTERM signal is received,
-        pcntl_signal(SIGTERM, function(){
-            exit(0);
-        });
-    }
-
 
     /**
      * Updates the status of the process
@@ -264,7 +187,7 @@ class Process implements ProcessInterface
      */
     protected function updateStatus($blocking = false)
     {
-        if ($this->status != static::STATUS_RUNNING) {
+        if (!$this->isRunning) {
             return;
         }
         $options = $blocking ? 0 : WNOHANG | WUNTRACED;
@@ -273,54 +196,20 @@ class Process implements ProcessInterface
             throw new RuntimeException("Error waits on or returns the status of the process");
         } elseif ($result) {
             //The process is terminated
-            $this->status = static::STATUS_TERMINATED;
+            $this->isRunning = false;
             //checks if the process is exited normally
-            if (pcntl_wifexited($status)) {
-                $this->exitCode = pcntl_wexitstatus($status);
-                $this->errorMessage = pcntl_strerror($this->exitCode);
-            }
-            if (pcntl_wifsignaled($status)) {
-                $this->ifSignaled = true;
-                $this->termSignal = pcntl_wtermsig($status);
-            }
-            if (pcntl_wifstopped($status)) {
-                $this->ifStopped = true;
-                $this->stopSignal = pcntl_wifstopped($status);
-            }
+            $this->status = new Status($status);
         } else {
-            $this->status = static::STATUS_RUNNING;
+            $this->isRunning = true;
         }
     }
 
     /**
-     * @return bool
+     * Gets the status of the process
+     * @return Status
      */
-    public function isSignaled()
+    public function getStatus()
     {
-        return $this->ifSignaled;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTermSignal()
-    {
-        return $this->termSignal;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStopped()
-    {
-        return $this->ifStopped;
-    }
-
-    /**
-     * @return int
-     */
-    public function getStopSignal()
-    {
-        return $this->stopSignal;
+        return $this->status;
     }
 }

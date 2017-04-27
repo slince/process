@@ -75,9 +75,4 @@ class Semaphore
     {
         sem_remove($this->semId);
     }
-
-    public function __destruct()
-    {
-        $this->destroy();
-    }
 }

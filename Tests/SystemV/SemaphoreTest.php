@@ -11,6 +11,7 @@ class SemaphoreTest extends TestCase
     {
         $semaphore = new Semaphore();
         $this->assertTrue($semaphore->acquire());
+        $this->assertFalse($semaphore->acquire(false));
     }
 
     public function testRelease()
