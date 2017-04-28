@@ -1,6 +1,6 @@
 {
     "name": "slince/process",
-    "description": "The process wrapper and manager base on pcntl and posix.",
+    "description": "The process wrapper and manager based on pcntl and posix.",
     "keywords": ["process", "pcntl", "child process", "posix", "fork", "pipe", "system v", "semaphore", "shared memory"],
     "type": "library",
     "license": "MIT",

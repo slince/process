@@ -35,9 +35,9 @@ $process->start();
 
 var_dump($process->isRunning()); // echo true
 var_dump($process->getPid()); // will output the pid of child process
+//do something other
 
-//do something
-$process->wait();
+$process->wait(); //waiting for the process to exit 
 ```
 Sends signal to the process
 
@@ -47,7 +47,7 @@ Sends signal to the process
 $process = new Slince\Process\Process(function(){
     echo 'hello, my pid is ' . getmypid();
 });
-$process->getSignalHandler()->regsiter([SIGUSER1, SIGUSER2], function(){
+$process->getSignalHandler()->register([SIGUSR1, SIGUSR2], function(){
     echo 'trigger signal';
 });
 $process->start();
@@ -55,7 +55,6 @@ $process->signal(SIGUSER1);
 //do something
 $process->wait();
 ```
-
 
 Shared memory
 
@@ -81,7 +80,7 @@ $semaphore->release() //Releases a lock
 Message queue
 
 ```
-$queue  = new MessageQueue();
+$queue  = new Slince\Process\SystemV\MessageQueue();
 $queue->send('hello');
 echo $queue->receive(); //Will output hello
 ```
