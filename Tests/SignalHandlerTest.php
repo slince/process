@@ -40,7 +40,7 @@ class SignalHandlerTest extends TestCase
     {
         $signalHandler = SignalHandler::getInstance();
         $handler = function () {
-            $this->username = 'foo';
+            echo 'signal';
         };
         $signalHandler->register(SIGUSR1, $handler);
         $handler1 = $signalHandler->getHandler(SIGUSR1);
