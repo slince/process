@@ -143,9 +143,4 @@ class SharedMemory
         }
         return $number;
     }
-
-    public function __destruct()
-    {
-        $this->destroy();
-    }
 }
