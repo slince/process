@@ -10,6 +10,12 @@ use Slince\Process\Exception\InvalidArgumentException;
 class SignalHandler
 {
     /**
+     * The handlers
+     * @var array
+     */
+    protected $handlers = [];
+
+    /**
      * Registers a callback for some signals
      * @param int|array $signals a signal or an array of signals
      * @param callable|int $callback a callback
@@ -29,14 +35,15 @@ class SignalHandler
     /**
      * Register a callback for
      * @param $signal
-     * @param $callback
+     * @param int|callable $handler
      */
-    protected function setSignalHandler($signal, $callback)
+    protected function setSignalHandler($signal, $handler)
     {
-        if (!is_int($callback) && !is_callable($callback)) {
+        if (!is_int($handler) && !is_callable($handler)) {
             throw new InvalidArgumentException('The signal handler should be called or a number');
         }
-        pcntl_signal($signal, $callback);
+        $this->handlers[$signal] = $handler;
+        pcntl_signal($signal, $handler);
     }
 
     /**
@@ -46,7 +53,10 @@ class SignalHandler
      */
     public function getHandler($signal)
     {
-        return pcntl_signal_get_handler($signal);
+        if (function_exists('pcntl_signal_get_handler')) {
+            return pcntl_signal_get_handler($signal);
+        }
+        return isset($this->handlers[$signal]) ? $this->handlers[$signal] : null;
     }
 
 

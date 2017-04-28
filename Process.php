@@ -92,7 +92,7 @@ class Process implements ProcessInterface
             try {
                 $exitCode = call_user_func($this->callback);
             } catch (\Exception $e) {
-                $exitCode  = 1;
+                $exitCode  = 255;
             }
             exit(intval($exitCode));
         }
