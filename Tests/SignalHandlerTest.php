@@ -3,6 +3,7 @@ namespace Slince\Process\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Process\SignalHandler;
+use Slince\Process\SystemV\SharedMemory;
 
 class SignalHandlerTest extends TestCase
 {
@@ -13,11 +14,14 @@ class SignalHandlerTest extends TestCase
     public function testRegister()
     {
         $signalHandler = SignalHandler::create();
-        $signalHandler->register(SIGUSR1, function(){
+        $memory = new SharedMemory();
+        $signalHandler->register(SIGUSR1, function() use($memory){
             $this->username = 'foo';
+            $memory->set('foo',  'bar');
         });
-        usleep(100);
         posix_kill(getmypid(), SIGUSR1);
+        usleep(100);
+        $this->assertEquals('bar', $memory->get('foo'));
         $this->assertEquals('foo', $this->username);
     }
 
