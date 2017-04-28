@@ -45,7 +45,7 @@ class ReadableFifo extends AbstractFifo
     public function getStream()
     {
         $stream = parent::getStream();
-        stream_set_blocking($stream,false);
+        stream_set_blocking($stream, false);
         return $stream;
     }
 }

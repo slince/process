@@ -41,6 +41,8 @@ $process->wait();
 ```
 Sends signal to the process
 
+>Note: If your php version is less than 7.1, please add the statement `declare(ticks=1);` at the beginning of the file:
+
 ```
 $process = new Slince\Process\Process(function(){
     echo 'hello, my pid is ' . getmypid();

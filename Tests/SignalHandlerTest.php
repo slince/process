@@ -17,11 +17,10 @@ class SignalHandlerTest extends TestCase
     {
         $signalHandler = SignalHandler::getInstance();
         $username = '';
-        $signalHandler->register(SIGUSR1, function() use(&$username){
-           $username = 'foo';
+        $signalHandler->register(SIGUSR1, function () use (&$username) {
+            $username = 'foo';
         });
         posix_kill(getmypid(), SIGUSR1);
-        usleep(100);
         $this->assertEquals('foo', $username);
     }
 
@@ -29,19 +28,18 @@ class SignalHandlerTest extends TestCase
     {
         $signalHandler = SignalHandler::getInstance();
         $counter = 0;
-        $signalHandler->register([SIGUSR1, SIGUSR2], function() use(&$counter){
+        $signalHandler->register([SIGUSR1, SIGUSR2], function () use (&$counter) {
             $counter ++;
         });
         posix_kill(getmypid(), SIGUSR1);
         posix_kill(getmypid(), SIGUSR2);
-        usleep(100);
         $this->assertEquals(2, $counter);
     }
 
     public function testGetHandler()
     {
         $signalHandler = SignalHandler::getInstance();
-        $handler = function(){
+        $handler = function () {
             $this->username = 'foo';
         };
         $signalHandler->register(SIGUSR1, $handler);

@@ -38,7 +38,7 @@ class WritableFifo extends AbstractFifo
     {
         $stream = parent::getStream();
         if ($this->blocking === false) {
-            stream_set_blocking($stream,false);
+            stream_set_blocking($stream, false);
         }
         return $stream;
     }
@@ -47,7 +47,7 @@ class WritableFifo extends AbstractFifo
     {
         parent::setBlocking($blocking);
         if (!is_null($this->stream)) {
-            stream_set_blocking($this->stream,$blocking);
+            stream_set_blocking($this->stream, $blocking);
         }
     }
 }

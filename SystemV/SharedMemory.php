@@ -119,7 +119,7 @@ class SharedMemory
     protected function generateShmKey($val)
     {
         // enable all world langs and chars !
-        return preg_replace("/[^0-9]/","",(preg_replace("/[^0-9]/","",md5($val))/35676248)/619876);
+        return preg_replace("/[^0-9]/", "", (preg_replace("/[^0-9]/", "", md5($val))/35676248)/619876);
     }
 
     /**

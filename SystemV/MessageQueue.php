@@ -40,8 +40,14 @@ class MessageQueue
      */
     public function send($message, $blocking = true)
     {
-        if (!msg_send($this->mqId, $this->messageType, $message,
-            $this->unserialize, $blocking, $errorCode)
+        if (!msg_send(
+            $this->mqId,
+            $this->messageType,
+            $message,
+            $this->unserialize,
+            $blocking,
+            $errorCode
+        )
         ) {
             throw new RuntimeException("Failed to send the message to the queue", $errorCode);
         }
@@ -57,8 +63,16 @@ class MessageQueue
     public function receive($blocking = true, $maxSize = 10240)
     {
         $flags = $blocking ? 0 : MSG_IPC_NOWAIT;
-        if (msg_receive($this->mqId, $this->messageType,
-            $realMessageType, $maxSize, $message, $this->unserialize, $flags, $errorCode)
+        if (msg_receive(
+            $this->mqId,
+            $this->messageType,
+            $realMessageType,
+            $maxSize,
+            $message,
+            $this->unserialize,
+            $flags,
+            $errorCode
+        )
         ) {
             return $message;
         }

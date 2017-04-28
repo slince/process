@@ -1,7 +1,6 @@
 <?php
 namespace Slince\Process\Tests;
 
-
 final class Utils
 {
     protected static $pd;
@@ -11,7 +10,7 @@ final class Utils
      * @param $pathname
      * @return bool|resource
      */
-    public static function makeNativeReadFifo($pathname )
+    public static function makeNativeReadFifo($pathname)
     {
         if (!file_exists($pathname)) {
             posix_mkfifo($pathname, 0666);

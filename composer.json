@@ -1,6 +1,6 @@
 {
     "name": "slince/process",
-    "description": "The library help to work with processes base on pcntl. It provides a more readable api and various modes for IPC via pipe(FIFO) and system v.",
+    "description": "The process wrapper and manager base on pcntl and posix.",
     "keywords": ["process", "pcntl", "child process", "posix", "fork", "pipe", "system v", "semaphore", "shared memory"],
     "type": "library",
     "license": "MIT",
@@ -24,7 +24,7 @@
     "suggest": {
         "ext-pcntl": "*",
         "ext-posix": "*",
-        "ext-sysvsem":  "system v semaphore",
+        "ext-sysvsem": "Requiredsystem v semaphore",
         "ext-sysvshm": "Required for system v shared memory",
         "ext-sysvmsg": "Required for system v message queue"
     },

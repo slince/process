@@ -10,7 +10,7 @@ class ProcessTest extends TestCase
 {
     public function testStart()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             sleep(1);
         });
         $this->assertFalse($process->isRunning());
@@ -21,7 +21,7 @@ class ProcessTest extends TestCase
 
     public function testWait()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             sleep(2);
         });
         $process->start();
@@ -31,13 +31,13 @@ class ProcessTest extends TestCase
 
     public function testGetExitCode()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             usleep(100);
         });
         $this->assertNull($process->getExitCode());
         $process->run();
         $this->assertEquals(0, $process->getExitCode());
-        $process = new Process(function(){
+        $process = new Process(function () {
             exit(255);
         });
         $process->run();
@@ -46,7 +46,7 @@ class ProcessTest extends TestCase
 
     public function testGetPid()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             sleep(1);
         });
         $this->assertNull($process->getPid());
@@ -58,7 +58,7 @@ class ProcessTest extends TestCase
 
     public function testIfSignaled()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             sleep(1);
         });
         $process->start();
@@ -69,7 +69,7 @@ class ProcessTest extends TestCase
 
     public function testGetSignalHandler()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             sleep(1);
         });
         $this->assertInstanceOf(SignalHandler::class, $process->getSignalHandler());
@@ -77,7 +77,7 @@ class ProcessTest extends TestCase
 
     public function testGetStatus()
     {
-        $process = new Process(function(){
+        $process = new Process(function () {
             sleep(1);
         });
         $this->assertNull($process->getStatus());

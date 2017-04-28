@@ -1,7 +1,6 @@
 <?php
 namespace Slince\Process\Tests;
 
-
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Status;
 
@@ -70,6 +69,5 @@ class StatusTest extends TestCase
 
     public function testStop()
     {
-
     }
 }
