@@ -9,7 +9,7 @@ interface ProcessInterface
 {
     /**
      * Returns the Pid (process identifier)
-     * @return resource
+     * @return int
      */
     public function getPid();
 

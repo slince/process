@@ -13,7 +13,7 @@ class DuplexFifoTest extends TestCase
 
     public function setUp()
     {
-        @unlink('/tmp/test1.pipe');
+        file_exists('/tmp/test1.pipe') && unlink('/tmp/test1.pipe');
     }
 
     public function testRead()
@@ -92,6 +92,5 @@ class DuplexFifoTest extends TestCase
     public function tearDown()
     {
         is_resource($this->lastPd) && pclose($this->lastPd);
-        @unlink('/tmp/test1.pipe');
     }
 }

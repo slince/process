@@ -18,16 +18,16 @@ class SignalHandler
     /**
      * Registers a callback for some signals
      * @param int|array $signals a signal or an array of signals
-     * @param callable|int $callback a callback
-     * @return SignalHandler;
+     * @param callable|int $handler
+     * @return SignalHandler
      */
-    public function register($signals, $callback)
+    public function register($signals, $handler)
     {
         if (!is_array($signals)) {
             $signals = [$signals];
         }
         foreach ($signals as $signal) {
-            $this->setSignalHandler($signal, $callback);
+            $this->setSignalHandler($signal, $handler);
         }
         return $this;
     }
@@ -70,7 +70,7 @@ class SignalHandler
         $handler = new static();
         if (function_exists('pcntl_async_signals')) {
             pcntl_async_signals(true);
-        } else {
+        } elseif (!$disableDeclareTicks) {
             declare (ticks = 1);
         }
         return $handler;

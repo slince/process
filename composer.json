@@ -1,7 +1,7 @@
 {
     "name": "slince/process",
-    "description": "The process wrapper and manager based on ext-pcntl",
-    "keywords": ["process", "fork", "pipe", "system v", "Semaphore", "shared memory", "pcntl", "ext-pcntl"],
+    "description": "The library help to work with processes base on pcntl. It provides a more readable api and various modes for IPC via pipe(FIFO) and system v.",
+    "keywords": ["process", "pcntl", "child process", "posix", "fork", "pipe", "system v", "semaphore", "shared memory"],
     "type": "library",
     "license": "MIT",
     "authors": [

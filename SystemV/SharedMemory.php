@@ -26,7 +26,7 @@ class SharedMemory
         if (!is_null($size)) {
             $this->size = static::humanReadableToBytes($size);
         } else {
-            $this->size = ini_get('sysvshm.init_mem') ?: 10000;
+            $this->size = (int)ini_get('sysvshm.init_mem') ?: 10000;
         }
         $ipcKey = $this->generateIpcKey($pathname);
         $this->shmId = shm_attach($ipcKey, $this->size, $permission);

@@ -60,7 +60,7 @@ class Status
         }
         if (pcntl_wifstopped($status)) {
             $this->isStopped = true;
-            $this->stopSignal = pcntl_wifstopped($status);
+            $this->stopSignal = pcntl_wstopsig($status);
         }
     }
 

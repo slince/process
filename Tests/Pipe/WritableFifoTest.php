@@ -11,7 +11,7 @@ class WritableFifoTest extends TestCase
 
     public function setUp()
     {
-        @unlink('/tmp/test2.pipe');
+        file_exists('/tmp/test2.pipe') && unlink('/tmp/test2.pipe');
     }
 
     public function testSimpleWrite()
@@ -76,6 +76,5 @@ class WritableFifoTest extends TestCase
     public function tearDown()
     {
         is_resource($this->lastPd) && pclose($this->lastPd);
-        @unlink('/tmp/test2.pipe');
     }
 }
