@@ -6,7 +6,7 @@ use Slince\Process\SignalHandler;
 
 class SignalHandlerTest extends TestCase
 {
-    protected $counter;
+    protected $counter = 0;
 
     protected $username;
 
@@ -16,6 +16,7 @@ class SignalHandlerTest extends TestCase
         $signalHandler->register(SIGUSR1, function(){
             $this->username = 'foo';
         });
+        usleep(100);
         posix_kill(getmypid(), SIGUSR1);
         $this->assertEquals('foo', $this->username);
     }
@@ -28,6 +29,7 @@ class SignalHandlerTest extends TestCase
         });
         posix_kill(getmypid(), SIGUSR1);
         posix_kill(getmypid(), SIGUSR2);
+        usleep(100);
         $this->assertEquals(2, $this->counter);
     }
 
