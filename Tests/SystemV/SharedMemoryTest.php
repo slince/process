@@ -6,6 +6,10 @@ use Slince\Process\SystemV\SharedMemory;
 
 class SharedMemoryTest extends TestCase
 {
+    public function setUp()
+    {
+        (new SharedMemory())->destroy();
+    }
 
     public function testSet()
     {

@@ -21,5 +21,12 @@
     "require-dev": {
         "phpunit/phpunit": "^4.0"
     },
+    "suggest": {
+        "ext-pcntl": "*",
+        "ext-posix": "*",
+        "ext-sysvsem":  "system v semaphore",
+        "ext-sysvshm": "Required for system v shared memory",
+        "ext-sysvmsg": "Required for system v message queue"
+    },
     "minimum-stability": "stable"
 }
