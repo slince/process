@@ -11,6 +11,9 @@ class SemaphoreTest extends TestCase
     {
         $semaphore = new Semaphore();
         $this->assertTrue($semaphore->acquire());
+        if (version_compare(PHP_VERSION, '5.6.1') < 0) {
+            $this->markTestSkipped();
+        }
         $this->assertFalse($semaphore->acquire(false));
     }
 
@@ -24,6 +27,9 @@ class SemaphoreTest extends TestCase
 
     public function testMutex()
     {
+        if (version_compare(PHP_VERSION, '5.6.1') < 0) {
+            $this->markTestSkipped();
+        }
         $process = new Process(function () {
             $semaphore = new Semaphore();
             $semaphore->acquire();

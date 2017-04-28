@@ -6,35 +6,36 @@ use Slince\Process\SignalHandler;
 
 class SignalHandlerTest extends TestCase
 {
+    protected $counter;
+
+    protected $username;
+
     public function testRegister()
     {
         $signalHandler = SignalHandler::create();
-        $username = '';
-        $signalHandler->register(SIGUSR1, function() use (&$username) {
-            $username = 'foo';
+        $signalHandler->register(SIGUSR1, function(){
+            $this->username = 'foo';
         });
         posix_kill(getmypid(), SIGUSR1);
-        $this->assertEquals('foo', $username);
+        $this->assertEquals('foo', $this->username);
     }
 
     public function testRegisterMultiSignal()
     {
         $signalHandler = SignalHandler::create();
-        $counter = 0;
-        $signalHandler->register([SIGUSR1, SIGUSR2], function() use (&$username, &$counter) {
-            $counter ++;
+        $signalHandler->register([SIGUSR1, SIGUSR2], function(){
+            $this->counter ++;
         });
         posix_kill(getmypid(), SIGUSR1);
         posix_kill(getmypid(), SIGUSR2);
-        $this->assertEquals(2, $counter);
+        $this->assertEquals(2, $this->counter);
     }
 
     public function testGetHandler()
     {
         $signalHandler = SignalHandler::create();
-        $username = '';
-        $handler = function() use (&$username) {
-            $username = 'foo';
+        $handler = function(){
+            $this->username = 'foo';
         };
         $signalHandler->register(SIGUSR1, $handler);
         $handler1 = $signalHandler->getHandler(SIGUSR1);
