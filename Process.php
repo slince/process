@@ -61,7 +61,7 @@ class Process implements ProcessInterface
             throw new InvalidArgumentException("Process expects a callable callback");
         }
         $this->callback = $callback;
-        $this->signalHandler = SignalHandler::create();
+        $this->signalHandler = SignalHandler::getInstance();
     }
 
     /**

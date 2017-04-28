@@ -3,43 +3,44 @@ namespace Slince\Process\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Process\SignalHandler;
-use Slince\Process\SystemV\SharedMemory;
 
 class SignalHandlerTest extends TestCase
 {
-    protected $counter = 0;
-
-    protected $username;
+    public static function setUpBeforeClass()
+    {
+        if (!function_exists('pcntl_async_signals')) {
+            declare(ticks = 1);
+        }
+    }
 
     public function testRegister()
     {
-        $signalHandler = SignalHandler::create();
-        $memory = new SharedMemory();
-        $signalHandler->register(SIGUSR1, function() use($memory){
-            $this->username = 'foo';
-            $memory->set('foo',  'bar');
+        $signalHandler = SignalHandler::getInstance();
+        $username = '';
+        $signalHandler->register(SIGUSR1, function() use(&$username){
+           $username = 'foo';
         });
         posix_kill(getmypid(), SIGUSR1);
         usleep(100);
-        $this->assertEquals('bar', $memory->get('foo'));
-        $this->assertEquals('foo', $this->username);
+        $this->assertEquals('foo', $username);
     }
 
     public function testRegisterMultiSignal()
     {
-        $signalHandler = SignalHandler::create();
-        $signalHandler->register([SIGUSR1, SIGUSR2], function(){
-            $this->counter ++;
+        $signalHandler = SignalHandler::getInstance();
+        $counter = 0;
+        $signalHandler->register([SIGUSR1, SIGUSR2], function() use(&$counter){
+            $counter ++;
         });
         posix_kill(getmypid(), SIGUSR1);
         posix_kill(getmypid(), SIGUSR2);
         usleep(100);
-        $this->assertEquals(2, $this->counter);
+        $this->assertEquals(2, $counter);
     }
 
     public function testGetHandler()
     {
-        $signalHandler = SignalHandler::create();
+        $signalHandler = SignalHandler::getInstance();
         $handler = function(){
             $this->username = 'foo';
         };

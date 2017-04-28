@@ -10,10 +10,22 @@ use Slince\Process\Exception\InvalidArgumentException;
 class SignalHandler
 {
     /**
+     * @var SignalHandler
+     */
+    protected static $instance;
+
+    /**
      * The handlers
      * @var array
      */
     protected $handlers = [];
+
+    public function __construct()
+    {
+        if (function_exists('pcntl_async_signals')) {
+            pcntl_async_signals(true);
+        }
+    }
 
     /**
      * Registers a callback for some signals
@@ -61,18 +73,14 @@ class SignalHandler
 
 
     /**
-     * Creates a handler
-     * @param boolean $disableDeclareTicks disable declare(tickets = 1)
+     * Gets a handler
      * @return SignalHandler
      */
-    public static function create($disableDeclareTicks = false)
+    public static function getInstance()
     {
-        $handler = new static();
-        if (function_exists('pcntl_async_signals')) {
-            pcntl_async_signals(true);
-        } elseif (!$disableDeclareTicks) {
-            declare (ticks = 1);
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
         }
-        return $handler;
+        return static::$instance;
     }
 }
