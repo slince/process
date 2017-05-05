@@ -1,7 +1,7 @@
 {
     "name": "slince/process",
     "description": "The process wrapper and manager based on pcntl and posix.",
-    "keywords": ["process", "pcntl", "child process", "posix", "fork", "pipe", "system v", "semaphore", "shared memory"],
+    "keywords": ["process", "pcntl", "child process", "posix", "fork", "pipe", "FIFO", "system v", "semaphore", "shared memory"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -24,7 +24,7 @@
     "suggest": {
         "ext-pcntl": "*",
         "ext-posix": "*",
-        "ext-sysvsem": "Requiredsystem v semaphore",
+        "ext-sysvsem": "Required for system v semaphore",
         "ext-sysvshm": "Required for system v shared memory",
         "ext-sysvmsg": "Required for system v message queue"
     },
