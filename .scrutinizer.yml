@@ -1,6 +1,6 @@
 filter:
     excluded_paths:
-        - "tests/*"
+        - "Tests/*"
         - "vendor/*"
 
 tools:
@@ -17,39 +17,39 @@ tools:
             level: all
         filter:
             excluded_paths:
-                - "tests/*"
+                - "Tests/*"
                 - "vendor/*"
 
     php_mess_detector:
         enabled: true
         filter:
             excluded_paths:
-                - "tests/*"
+                - "Tests/*"
                 - "vendor/*"
 
     php_pdepend:
         enabled: true
         filter:
             excluded_paths:
-                - "tests/*"
+                - "Tests/*"
                 - "vendor/*"
 
     php_analyzer:
         enabled: true
         filter:
             excluded_paths:
-                - "tests/*"
+                - "Tests/*"
                 - "vendor/*"
 
 
     php_cpd:
         enabled: true
         excluded_dirs:
-            - "tests/*"
+            - "Tests/*"
             - "vendor/*"
 
     php_loc:
         enabled: true
         excluded_dirs:
-            - "tests/*"
+            - "Tests/*"
             - "vendor/*"

@@ -11,7 +11,7 @@ The library help to work with processes. It provides a more readable api and var
 
 Install via composer
 
-```
+```bash
 composer require slince/process
 ```
 
@@ -26,8 +26,9 @@ The library replies on the following php's extension.
 
 # Usage
 
-Basic usage like this
-```
+## Basic usage 
+
+```php
 $process = new Slince\Process\Process(function(){
     echo 'hello, my pid is ' . getmypid();
 });
@@ -39,11 +40,12 @@ var_dump($process->getPid()); // will output the pid of child process
 
 $process->wait(); //waiting for the process to exit 
 ```
-Sends signal to the process
+
+## Sends signal to the process
 
 >Note: If your php version is less than 7.1, please add the statement `declare(ticks=1);` at the beginning of the file:
 
-```
+```php
 $process = new Slince\Process\Process(function(){
     echo 'hello, my pid is ' . getmypid();
 });
@@ -56,38 +58,38 @@ $process->signal(SIGUSER1);
 $process->wait();
 ```
 
-Shared memory
+## Shared memory
 
-```
+```php
 $memory = new Slince\Process\SystemV\SharedMemory();
 $memory->set('foo', 'bar');
 var_dump($memory->get('foo'));
 ```
 The default size of shared memory is the sysvshm.init_mem in the php.ini, otherwise 10000 bytes. You can adjust this.
 
-```
+```php
 $memory = new Slince\Process\SystemV\SharedMemory(__FILE__, '5M'); //Adjusts to 5m
 ```
 
-Semaphore
-```
+## Semaphore
+```php
 $semaphore = new Slince\Process\SystemV\Semaphore();
 $semaphore->acquire(); //Acquires a lock
 // do something
 $semaphore->release() //Releases a lock
 ```
 
-Message queue
+## Message queue
 
-```
+```php
 $queue  = new Slince\Process\SystemV\MessageQueue();
 $queue->send('hello');
 echo $queue->receive(); //Will output hello
 ```
 
-Fifo
+## Fifo
 
-```
+```php
 $writeFifo = new Slince\Process\Pipe\WritableFifo('/tmp/test.pipe');
 $writeFifo->write('some message');
 $readFifo = new Slince\Process\Pipe\ReadableFifo('/tmp/test.pipe');
@@ -95,7 +97,7 @@ echo $readFifo->read();
 ```
 Fifo works with half duplex mode. You can use `DuplexFifo` that will create two fifos.
 
-```
+```php
 $fifo = new Slince\Process\Pipe\DuplexFifo('/tmp/test.pipe');
 $fifo->write('some message');
 $fifo->read();
