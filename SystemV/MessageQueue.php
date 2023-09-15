@@ -1,82 +1,30 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process\SystemV;
 
 use Slince\Process\Exception\RuntimeException;
 
-class MessageQueue
+final class MessageQueue
 {
-    use IpcKeyTrait;
-
     /**
      * The resource that can be used to access to the system v message queue
      * @var resource
      */
     protected $mqId;
 
-    /**
-     * The message type
-     * @var int
-     */
-    protected $messageType;
-
-    protected $unserialize = true;
-
-    public function __construct($messageType = 1, $pathname = __FILE__, $mode = 0666)
+    public function __construct(string $pathname = __FILE__, int $mode = 0666)
     {
-        $this->messageType = $messageType;
-        $ipcKey = $this->generateIpcKey($pathname);
-        $this->mqId = msg_get_queue($ipcKey, $mode);
-    }
-
-    /**
-     * Sends the message to the queue
-     * @param string $message
-     * @param bool $blocking
-     * @return bool
-     */
-    public function send($message, $blocking = true)
-    {
-        if (!msg_send(
-            $this->mqId,
-            $this->messageType,
-            $message,
-            $this->unserialize,
-            $blocking,
-            $errorCode
-        )
-        ) {
-            throw new RuntimeException("Failed to send the message to the queue", $errorCode);
-        }
-        return true;
-    }
-
-    /**
-     * Gets the message from the queue
-     * @param bool $blocking
-     * @param int $maxSize The max size you want receive(Unit:bytes)
-     * @return string|false
-     */
-    public function receive($blocking = true, $maxSize = 10240)
-    {
-        $flags = $blocking ? 0 : MSG_IPC_NOWAIT;
-        if (msg_receive(
-            $this->mqId,
-            $this->messageType,
-            $realMessageType,
-            $maxSize,
-            $message,
-            $this->unserialize,
-            $flags,
-            $errorCode
-        )
-        ) {
-            return $message;
-        }
-        return false;
+        $this->mqId = msg_get_queue(IpcKeyUtils::generate($pathname), $mode);
     }
 
     /**
@@ -84,7 +32,7 @@ class MessageQueue
      * @param array $states
      * @return bool
      */
-    public function setStates(array $states)
+    public function setStates(array $states): bool
     {
         return msg_set_queue($this->mqId, $states);
     }
@@ -95,11 +43,9 @@ class MessageQueue
      * @param string|int $value
      * @return bool
      */
-    public function setState($key, $value)
+    public function setState(string $key, mixed $value): bool
     {
-        return $this->setStates([
-            $key => $value
-        ]);
+        return $this->setStates([$key => $value]);
     }
 
     /**
@@ -120,8 +66,56 @@ class MessageQueue
      *
      * @return array
      */
-    public function getState()
+    public function getState(): array
     {
         return msg_stat_queue($this->mqId);
+    }
+
+    /**
+     * Sends the message to the queue
+     * @param string $message
+     * @param int $messageType
+     * @param bool $blocking
+     * @param bool $unserialize
+     */
+    public function send(string $message, int $messageType, bool $blocking = true, bool $unserialize = false): void
+    {
+        if (!msg_send(
+            $this->mqId,
+            $messageType,
+            $message,
+            $unserialize,
+            $blocking,
+            $errorCode
+        )
+        ) {
+            throw new RuntimeException("Failed to send the message to the queue", $errorCode);
+        }
+    }
+
+    /**
+     * Gets the message from the queue
+     * @param int $desiredMessageType
+     * @param bool $blocking
+     * @param int $maxSize The max size you want receive(Unit:bytes)
+     * @param bool $unserialize
+     * @return string|null
+     */
+    public function receive(int $desiredMessageType, bool $blocking = true, int $maxSize = 10240, bool $unserialize = false): ?string
+    {
+        $flags = $blocking ? 0 : MSG_IPC_NOWAIT;
+        if (!msg_receive(
+            $this->mqId,
+            $desiredMessageType,
+            $realMessageType,
+            $maxSize,
+            $message,
+            $unserialize,
+            $flags,
+            $errorCode
+        )) {
+            throw new RuntimeException("Failed to receive message from the queue", $errorCode);
+        }
+        return $message;
     }
 }

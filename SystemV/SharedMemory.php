@@ -1,17 +1,24 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process\SystemV;
 
-class SharedMemory
-{
-    use IpcKeyTrait;
+use SysvSharedMemory;
 
+final class SharedMemory
+{
     /**
      * The resource that be generated after call "shm_attach"
-     * @var resource
+     * @var SysvSharedMemory
      */
     protected $shmId;
 
@@ -19,64 +26,63 @@ class SharedMemory
      * The size of the shared memory
      * @var int
      */
-    protected $size;
+    protected int $size;
 
-    public function __construct($pathname = __FILE__, $size = null, $permission = 0666)
+    public function __construct(string $pathname = __FILE__, ?string $size = null, int $permission = 0666)
     {
         if (!is_null($size)) {
-            $this->size = static::humanReadableToBytes($size);
+            $this->size = SharedMemory::humanReadableToBytes($size);
         } else {
             $this->size = (int)ini_get('sysvshm.init_mem') ?: 10000;
         }
-        $ipcKey = $this->generateIpcKey($pathname);
-        $this->shmId = shm_attach($ipcKey, $this->size, $permission);
+        $this->shmId = shm_attach(IpcKeyUtils::generate($pathname), $this->size, $permission);
     }
 
     /**
      * Gets a value from the shared memory
-     * @param $key
+     * @param int $key
      * @return mixed
      */
-    public function get($key)
+    public function get(int $key): mixed
     {
-        return shm_get_var($this->shmId, $this->generateShmKey($key));
+        return shm_get_var($this->shmId, $key);
     }
 
     /**
      * Persists data in the shared memory
-     * @param string $key
+     * @param int $key
      * @param mixed $value
      * @return bool
      */
-    public function set($key, $value)
+    public function set(int $key, mixed $value)
     {
-        return shm_put_var($this->shmId, $this->generateShmKey($key), $value);
+        return shm_put_var($this->shmId, $key, $value);
     }
 
     /**
      * Delete an item from the shared memory by its key
-     * @param string $key
+     * @param int $key
      * @return bool
      */
-    public function delete($key)
+    public function delete(int $key): bool
     {
-        return shm_remove_var($this->shmId, $this->generateShmKey($key));
+        return shm_remove_var($this->shmId, $key);
     }
 
     /**
      * Checks whether an item exists in the shared memory
-     * @param string $key
+     * @param int $key
      * @return bool
      */
-    public function has($key)
+    public function has(int $key): bool
     {
-        return shm_has_var($this->shmId, $this->generateShmKey($key));
+        return shm_has_var($this->shmId, $key);
     }
 
     /**
      * Deletes all items
      */
-    public function clear()
+    public function clear(): bool
     {
         return shm_remove($this->shmId);
     }
@@ -85,7 +91,7 @@ class SharedMemory
      * Checks whether the memory is enabled
      * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return is_resource($this->shmId);
     }
@@ -93,7 +99,7 @@ class SharedMemory
     /**
      * Disconnects from shared memory
      */
-    public function close()
+    public function close(): void
     {
         is_resource($this->shmId) && shm_detach($this->shmId);
     }
@@ -103,7 +109,7 @@ class SharedMemory
      * Removes all items and disconnects from shared memory
      * @return void
      */
-    public function destroy()
+    public function destroy(): void
     {
         if (is_resource($this->shmId)) {
             shm_remove($this->shmId);
@@ -112,23 +118,12 @@ class SharedMemory
     }
 
     /**
-     * Generate the variable key
-     * @param string $val
-     * @return string int
-     */
-    protected function generateShmKey($val)
-    {
-        // enable all world langs and chars !
-        return preg_replace("/[^0-9]/", "", (preg_replace("/[^0-9]/", "", md5($val))/35676248)/619876);
-    }
-
-    /**
      * Convert human readable file size (e.g. "10K" or "3M") into bytes
      * @link https://github.com/brandonsavage/Upload/blob/master/src/Upload/File.php#L446
-     * @param  string $input
+     * @param string $input
      * @return int
      */
-    public static function humanReadableToBytes($input)
+    public static function humanReadableToBytes(string $input): int
     {
         $number = (int)$input;
         $units = array(
