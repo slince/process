@@ -3,8 +3,6 @@ namespace Slince\Process\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Process;
-use Slince\Process\SignalHandler;
-use Slince\Process\Status;
 
 class ProcessTest extends TestCase
 {
@@ -22,7 +20,7 @@ class ProcessTest extends TestCase
     public function testWait()
     {
         $process = new Process(function () {
-            sleep(2);
+            sleep(1);
         });
         $process->start();
         $process->wait();
@@ -34,13 +32,15 @@ class ProcessTest extends TestCase
         $process = new Process(function () {
             usleep(100);
         });
-        $this->assertNull($process->getExitCode());
-        $process->run();
+        $process->start();
+        $process->wait();
+        $this->assertTrue($process->hasBeenExited());
         $this->assertEquals(0, $process->getExitCode());
         $process = new Process(function () {
             exit(255);
         });
         $process->run();
+        $this->assertTrue($process->hasBeenExited());
         $this->assertEquals(255, $process->getExitCode());
     }
 
@@ -63,8 +63,8 @@ class ProcessTest extends TestCase
         });
         $process->start();
         $process->stop();
-        $this->assertTrue($process->getStatus()->isSignaled());
-        $this->assertEquals(SIGKILL, $process->getStatus()->getTerminateSignal());
+        $this->assertTrue($process->hasBeenSignaled());
+        $this->assertEquals(SIGKILL, $process->getTermSignal());
     }
 
     public function testGetSignalHandler()

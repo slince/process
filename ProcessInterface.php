@@ -46,15 +46,21 @@ interface ProcessInterface
     public function wait();
 
     /**
-     * Closes the process.
+     * Starts and wait the process.
+     * @return void
      */
-    public function close();
+    public function run(): void;
+
+    /**
+     * Stop the process.
+     */
+    public function stop();
 
     /**
      * Terminate the process with an optional signal.
-     * @param int|null $signal
+     * @param int $signal
      */
-    public function terminate(int $signal = null);
+    public function terminate(int $signal = SIGKILL);
 
     /**
      * Sends a POSIX signal to the process.
@@ -105,11 +111,22 @@ interface ProcessInterface
     public function getStatus(): string;
 
     /**
+     * Returns true if the child process has been exits.
+     *
+     * It always returns false on Windows.
+     *
+     * @return bool
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function hasBeenExited(): bool;
+
+    /**
      * Returns the exit code returned by the process.
      *
-     * @return int|null The exit status code, null if the Process is not terminated
+     * @return int The exit status code
      */
-    public function getExitCode(): ?int;
+    public function getExitCode(): int;
 
     /**
      * Returns true if the child process has been terminated by an uncaught signal.
@@ -155,4 +172,13 @@ interface ProcessInterface
      * @throws LogicException In case the process is not terminated
      */
     public function getStopSignal(): int;
+
+    /**
+     * Returns true if the child process has been continued.
+     *
+     * It always returns false on Windows.
+     *
+     * @return bool
+     */
+    public function hasBeenContinued(): bool;
 }

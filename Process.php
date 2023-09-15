@@ -27,15 +27,11 @@ final class Process implements ProcessInterface
      */
     protected \Closure $callback;
 
-    /**
-     * pid
-     * @var int
-     */
-    protected int $pid;
+    protected ?int $pid = null;
 
-    protected int $statusInfo;
+    protected ?int $statusInfo = null;
 
-    protected int $exitCode;
+    protected ?int $exitCode = null;
 
     protected static CurrentProcess $currentProcess;
 
@@ -101,22 +97,32 @@ final class Process implements ProcessInterface
      */
     public function wait(): void
     {
+        $this->requireProcessIsStarted(__FUNCTION__);
         $this->updateStatus(true);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function close(): void
+    public function run(): void
     {
-        $this->status = self::STATUS_TERMINATED;
-        $this->signal(SIGKILL);
+        $this->start();
+        $this->wait();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPid(): int
+    public function stop(): void
+    {
+        $this->status = self::STATUS_TERMINATED;
+        $this->signal(SIGSTOP);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPid(): ?int
     {
         return $this->pid;
     }
@@ -146,17 +152,13 @@ final class Process implements ProcessInterface
         } else {
             //The process is terminated
             $this->status = self::STATUS_TERMINATED;
-
-            if (pcntl_wifexited($this->statusInfo)) {
-                $this->exitCode = pcntl_wexitstatus($this->statusInfo);
-            }
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function terminate(int $signal = null): void
+    public function terminate(int $signal = SIGKILL): void
     {
         $this->status = self::STATUS_TERMINATED;
         $this->signal($signal);
@@ -205,6 +207,18 @@ final class Process implements ProcessInterface
     }
 
     /**
+     * Ensures the process is running or terminated, throws a LogicException if the process has a not started.
+     *
+     * @throws LogicException if the process has not run
+     */
+    private function requireProcessIsStarted(string $functionName): void
+    {
+        if (!$this->isStarted()) {
+            throw new LogicException(sprintf('Process must be started before calling "%s()".', $functionName));
+        }
+    }
+
+    /**
      * Ensures the process is terminated, throws a LogicException if the process has a status different than "terminated".
      *
      * @throws LogicException if the process is not yet terminated
@@ -219,11 +233,20 @@ final class Process implements ProcessInterface
     /**
      * {@inheritdoc}
      */
-    public function getExitCode(): ?int
+    public function hasBeenExited(): bool
     {
-        $this->updateStatus(false);
+        $this->requireProcessIsTerminated(__FUNCTION__);
+        return pcntl_wifexited($this->statusInfo);
+    }
 
-        return $this->exitCode;
+    /**
+     * {@inheritdoc}
+     */
+    public function getExitCode(): int
+    {
+        $this->requireProcessIsTerminated(__FUNCTION__);
+
+        return pcntl_wexitstatus($this->statusInfo);
     }
 
     /**
@@ -264,5 +287,14 @@ final class Process implements ProcessInterface
         $this->requireProcessIsTerminated(__FUNCTION__);
 
         return pcntl_wstopsig($this->statusInfo);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasBeenContinued(): bool
+    {
+        $this->requireProcessIsStarted(__FUNCTION__);
+        return pcntl_wifcontinued($this->statusInfo);
     }
 }
