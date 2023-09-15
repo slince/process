@@ -1,45 +1,113 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process;
+
+use Slince\Process\Exception\LogicException;
+use Slince\Process\Exception\RuntimeException;
 
 interface ProcessInterface
 {
     /**
-     * Returns the Pid (process identifier)
-     * @return int
+     * process status,running
+     * @var string
      */
-    public function getPid();
+    const STATUS_READY = 'ready';
 
     /**
-     * Starts the process
+     * process status,running
+     * @var string
      */
-    public function start();
+    const STATUS_STARTED = 'started';
 
     /**
-     * Waits for the process to terminate.
+     * process status,terminated
+     * @var string
+     */
+    const STATUS_TERMINATED = 'terminated';
+
+    /**
+     * Starts the process.
+     */
+    public function start(): void;
+
+    /**
+     * Wait for the process exit.
      */
     public function wait();
 
     /**
-     * Sends a posix signal to the process.
-     * @param int $signal pcntl sinal
-     * @return boolean
+     * Closes the process.
      */
-    public function signal($signal);
+    public function close();
 
     /**
-     * Checks if the process is currently running
-     * @return bool
+     * Terminate the process with an optional signal.
+     * @param int|null $signal
      */
-    public function isRunning();
+    public function terminate(int $signal = null);
 
     /**
-     * Stops the current process
-     * @param int $signal
+     * Sends a POSIX signal to the process.
+     *
+     * @param int $signal A valid POSIX signal (see https://php.net/pcntl.constants)
+     *
+     * @throws LogicException   In case the process is not running
+     * @throws RuntimeException In case --enable-sigchild is activated and the process can't be killed
+     * @throws RuntimeException In case of failure
+     */
+    public function signal(int $signal);
+
+    /**
+     * Gets the process id.
+     *
+     * @return int|null
+     */
+    public function getPid(): ?int;
+
+    /**
+     * Checks whether the process is running.
+     *
      * @return bool
      */
-    public function stop($signal = SIGKILL);
+    public function isRunning(): bool;
+
+    /**
+     * Checks if the process has been started with no regard to the current state.
+     *
+     * @return bool true if status is ready, false otherwise
+     */
+    public function isStarted(): bool;
+
+    /**
+     * Checks if the process is terminated.
+     *
+     * @return bool true if process is terminated, false otherwise
+     */
+    public function isTerminated(): bool;
+
+    /**
+     * Gets the process status.
+     *
+     * The status is one of: ready, started, terminated.
+     *
+     * @return string The current process status
+     */
+    public function getStatus(): string;
+
+    /**
+     * Returns the exit code returned by the process.
+     *
+     * @return int|null The exit status code, null if the Process is not terminated
+     */
+    public function getExitCode(): ?int;
 }

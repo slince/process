@@ -12,7 +12,6 @@ declare(strict_types=1);
  */
 namespace Slince\Process\Exception;
 
-class RuntimeException extends \RuntimeException
+class LogicException extends \LogicException
 {
-
 }

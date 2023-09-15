@@ -1,94 +1,92 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process;
 
-use Slince\Process\Exception\InvalidArgumentException;
+use Slince\Process\Exception\LogicException;
 use Slince\Process\Exception\RuntimeException;
 
-class Process implements ProcessInterface
+final class Process implements ProcessInterface
 {
     /**
-     * process status,running
      * @var string
      */
-    const STATUS_RUNNING = 'running';
+    protected string $status = self::STATUS_READY;
 
     /**
-     * process status,terminated
-     * @var string
+     * @var \Closure
      */
-    const STATUS_TERMINATED = 'terminated';
-
-    /**
-     * callback
-     * @var callable
-     */
-    protected $callback;
+    protected \Closure $callback;
 
     /**
      * pid
      * @var int
      */
-    protected $pid;
+    protected int $pid;
 
-    /**
-     * Whether the process is running
-     * @var bool
-     */
-    protected $isRunning = false;
+    protected int $statusInfo;
 
-    /**
-     * signal handler
-     * @var SignalHandler
-     */
-    protected $signalHandler;
+    protected int $exitCode;
 
-    /**
-     * current status
-     * @var Status
-     */
-    protected $status;
+    protected static CurrentProcess $currentProcess;
 
-    public function __construct($callback)
+    public function __construct(callable $callback)
     {
-        if (!static::isSupported()) {
-            throw new RuntimeException("Process need ext-pcntl");
+        if (!function_exists('pcntl_fork')) {
+            throw new RuntimeException('The Process class relies on ext-pcntl, which is not available on your PHP installation.');
         }
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException("Process expects a callable callback");
+        if ($callback instanceof \Closure) {
+            \Closure::bind($callback, null);
         }
         $this->callback = $callback;
-        $this->signalHandler = SignalHandler::getInstance();
     }
 
     /**
-     * Checks whether the current environment supports this
+     * Returns the current process instance.
+     * @return CurrentProcess
+     */
+    public static function current(): CurrentProcess
+    {
+        if (null === self::$currentProcess) {
+            self::$currentProcess = new CurrentProcess();
+        }
+        return self::$currentProcess;
+    }
+
+    /**
+     * Checks whether support signal.
      * @return bool
      */
-    public static function isSupported()
+    public static function isSupportPosixSignal(): bool
     {
-        return function_exists('pcntl_fork');
+        return function_exists('pcntl_signal');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function start()
+    public function start(): void
     {
         if ($this->isRunning()) {
             throw new RuntimeException("The process is already running");
         }
-        $pid = pcntl_fork();
+        $pid = \pcntl_fork();
         if ($pid == -1) {
             throw new RuntimeException("Could not fork");
         } elseif ($pid) { //Records the pid of the child process
             $this->pid = $pid;
-            $this->isRunning = true;
+            $this->status = self::STATUS_STARTED;
+            $this->updateStatus(false);
         } else {
-            $this->pid = posix_getpid();
             try {
                 $exitCode = call_user_func($this->callback);
             } catch (\Exception $e) {
@@ -101,35 +99,24 @@ class Process implements ProcessInterface
     /**
      * {@inheritdoc}
      */
-    public function wait()
+    public function wait(): void
     {
-        if ($this->isRunning()) {
-            $this->updateStatus(true);
-        }
-    }
-
-    /**
-     * Start and wait for the process to complete
-     */
-    public function run()
-    {
-        $this->start();
-        $this->wait();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function stop($signal = SIGKILL)
-    {
-        $this->signal($signal);
         $this->updateStatus(true);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPid()
+    public function close(): void
+    {
+        $this->status = self::STATUS_TERMINATED;
+        $this->signal(SIGKILL);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPid(): int
     {
         return $this->pid;
     }
@@ -137,7 +124,7 @@ class Process implements ProcessInterface
     /**
      * {@inheritdoc}
      */
-    public function signal($signal)
+    public function signal(int $signal): void
     {
         if (!$this->isRunning()) {
             throw new RuntimeException("The process is not currently running");
@@ -145,68 +132,162 @@ class Process implements ProcessInterface
         posix_kill($this->getPid(), $signal);
     }
 
+    protected function updateStatus(bool $blocking): void
+    {
+        if (self::STATUS_STARTED !== $this->status) {
+            return;
+        }
+        $options = $blocking ? 0 : WNOHANG | WUNTRACED;
+        $result = pcntl_waitpid($this->getPid(), $this->statusInfo, $options);
+        if ($result == -1) {
+            throw new RuntimeException("Error waits on or returns the status of the process");
+        } elseif ($result === 0) {
+            $this->status = self::STATUS_STARTED;
+        } else {
+            //The process is terminated
+            $this->status = self::STATUS_TERMINATED;
+
+            if (pcntl_wifexited($this->statusInfo)) {
+                $this->exitCode = pcntl_wexitstatus($this->statusInfo);
+            }
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function isRunning()
+    public function terminate(int $signal = null): void
+    {
+        $this->status = self::STATUS_TERMINATED;
+        $this->signal($signal);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isRunning(): bool
     {
         //if process is not running, return false
-        if (!$this->isRunning) {
+        if (self::STATUS_STARTED !== $this->status) {
             return false;
         }
         //if the process is running, update process status again
         $this->updateStatus(false);
-        return $this->isRunning;
+        return self::STATUS_STARTED === $this->status;
     }
 
     /**
-     * Gets the signal handler
-     * @return SignalHandler
+     * {@inheritdoc}
      */
-    public function getSignalHandler()
+    public function isStarted(): bool
     {
-        return $this->signalHandler;
+        return self::STATUS_STARTED === $this->status;
     }
 
     /**
-     * Gets the exit code of the process
-     * @return int
+     * {@inheritdoc}
      */
-    public function getExitCode()
+    public function isTerminated(): bool
     {
-        return $this->status ? $this->status->getExitCode() : null;
+        $this->updateStatus(false);
+
+        return self::STATUS_TERMINATED === $this->status;
     }
 
     /**
-     * Updates the status of the process
-     * @param bool $blocking
-     * @throws RuntimeException
+     * {@inheritdoc}
      */
-    protected function updateStatus($blocking = false)
+    public function getStatus(): string
     {
-        if (!$this->isRunning) {
-            return;
-        }
-        $options = $blocking ? 0 : WNOHANG | WUNTRACED;
-        $result = pcntl_waitpid($this->getPid(), $status, $options);
-        if ($result == -1) {
-            throw new RuntimeException("Error waits on or returns the status of the process");
-        } elseif ($result) {
-            //The process is terminated
-            $this->isRunning = false;
-            //checks if the process is exited normally
-            $this->status = new Status($status);
-        } else {
-            $this->isRunning = true;
-        }
-    }
+        $this->updateStatus(false);
 
-    /**
-     * Gets the status of the process
-     * @return Status
-     */
-    public function getStatus()
-    {
         return $this->status;
+    }
+
+    /**
+     * Ensures the process is terminated, throws a LogicException if the process has a status different than "terminated".
+     *
+     * @throws LogicException if the process is not yet terminated
+     */
+    private function requireProcessIsTerminated(string $functionName): void
+    {
+        if (!$this->isTerminated()) {
+            throw new LogicException(sprintf('Process must be terminated before calling "%s()".', $functionName));
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getExitCode(): ?int
+    {
+        $this->updateStatus(false);
+
+        return $this->exitCode;
+    }
+
+    /**
+     * Returns true if the child process has been terminated by an uncaught signal.
+     *
+     * It always returns false on Windows.
+     *
+     * @return bool
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function hasBeenSignaled(): bool
+    {
+        $this->requireProcessIsTerminated(__FUNCTION__);
+
+        return pcntl_wifsignaled($this->statusInfo);
+    }
+
+    /**
+     * Returns the number of the signal that caused the child process to terminate its execution.
+     *
+     * It is only meaningful if hasBeenSignaled() returns true.
+     *
+     * @return int
+     *
+     * @throws RuntimeException In case --enable-sigchild is activated
+     * @throws LogicException   In case the process is not terminated
+     */
+    public function getTermSignal(): int
+    {
+        $this->requireProcessIsTerminated(__FUNCTION__);
+
+        return pcntl_wtermsig($this->statusInfo);
+    }
+
+    /**
+     * Returns true if the child process has been stopped by a signal.
+     *
+     * It always returns false on Windows.
+     *
+     * @return bool
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function hasBeenStopped(): bool
+    {
+        $this->requireProcessIsTerminated(__FUNCTION__);
+
+        return pcntl_wifstopped($this->statusInfo);
+    }
+
+    /**
+     * Returns the number of the signal that caused the child process to stop its execution.
+     *
+     * It is only meaningful if hasBeenStopped() returns true.
+     *
+     * @return int
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function getStopSignal(): int
+    {
+        $this->requireProcessIsTerminated(__FUNCTION__);
+
+        return pcntl_wstopsig($this->statusInfo);
     }
 }
