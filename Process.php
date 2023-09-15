@@ -227,13 +227,7 @@ final class Process implements ProcessInterface
     }
 
     /**
-     * Returns true if the child process has been terminated by an uncaught signal.
-     *
-     * It always returns false on Windows.
-     *
-     * @return bool
-     *
-     * @throws LogicException In case the process is not terminated
+     * {@inheritdoc}
      */
     public function hasBeenSignaled(): bool
     {
@@ -243,14 +237,7 @@ final class Process implements ProcessInterface
     }
 
     /**
-     * Returns the number of the signal that caused the child process to terminate its execution.
-     *
-     * It is only meaningful if hasBeenSignaled() returns true.
-     *
-     * @return int
-     *
-     * @throws RuntimeException In case --enable-sigchild is activated
-     * @throws LogicException   In case the process is not terminated
+     * {@inheritdoc}
      */
     public function getTermSignal(): int
     {
@@ -260,13 +247,7 @@ final class Process implements ProcessInterface
     }
 
     /**
-     * Returns true if the child process has been stopped by a signal.
-     *
-     * It always returns false on Windows.
-     *
-     * @return bool
-     *
-     * @throws LogicException In case the process is not terminated
+     * {@inheritdoc}
      */
     public function hasBeenStopped(): bool
     {
@@ -276,13 +257,7 @@ final class Process implements ProcessInterface
     }
 
     /**
-     * Returns the number of the signal that caused the child process to stop its execution.
-     *
-     * It is only meaningful if hasBeenStopped() returns true.
-     *
-     * @return int
-     *
-     * @throws LogicException In case the process is not terminated
+     * {@inheritdoc}
      */
     public function getStopSignal(): int
     {

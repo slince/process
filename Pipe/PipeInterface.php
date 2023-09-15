@@ -1,7 +1,14 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process\Pipe;
 
@@ -11,14 +18,13 @@ interface PipeInterface
      * Reads data from the pipe
      * @return string
      */
-    public function read();
+    public function read(): string;
 
     /**
      * Write data to the pipe
      * @param string $message
-     * @return string
      */
-    public function write($message);
+    public function write(string $message): void;
 
     /**
      * Gets the stream of the pipe
@@ -30,17 +36,11 @@ interface PipeInterface
      * Close the pipe
      * @return void
      */
-    public function close();
-
-    /**
-     * Sets the blocking mode
-     * @param boolean $blocking
-     */
-    public function setBlocking($blocking);
+    public function close(): void;
 
     /**
      * Returns whether the pipe is blocking
      * @return boolean
      */
-    public function isBlocking();
+    public function isBlocking(): bool;
 }

@@ -1,7 +1,14 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process\Pipe;
 
@@ -10,17 +17,13 @@ use Slince\Process\Exception\RuntimeException;
 
 abstract class AbstractFifo implements PipeInterface
 {
-    protected $pathname;
-
-    protected $mode;
-
-    protected $permission;
-
+    protected string $pathname;
+    protected string $mode;
+    protected int $permission;
     protected $stream;
+    protected bool $blocking;
 
-    protected $blocking;
-
-    public function __construct($pathname, $blocking, $mode, $permission = 0666)
+    public function __construct(string $pathname, bool $blocking, string $mode, int $permission = 0666)
     {
         if (($isExisted = file_exists($pathname)) && filetype($pathname) !== 'fifo') {
             throw new InvalidArgumentException("The file already exists, but is not a valid fifo file");
@@ -29,7 +32,7 @@ abstract class AbstractFifo implements PipeInterface
             throw new RuntimeException("Cannot create the fifo file");
         }
         $this->pathname = $pathname;
-        $this->blocking = (boolean)$blocking;
+        $this->blocking = $blocking;
         $this->mode = $mode;
         $this->permission = $permission;
     }
@@ -39,16 +42,20 @@ abstract class AbstractFifo implements PipeInterface
      */
     public function getStream()
     {
-        if (!is_null($this->stream)) {
+        if (null !== $this->stream) {
             return $this->stream;
         }
-        return $this->stream = fopen($this->pathname, $this->mode);
+        $this->stream = fopen($this->pathname, $this->mode);
+        if (!$this->blocking) {
+            stream_set_blocking($this->stream, false);
+        }
+        return $this->stream;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function close()
+    public function close(): void
     {
         is_resource($this->stream) && fclose($this->stream);
     }
@@ -56,15 +63,7 @@ abstract class AbstractFifo implements PipeInterface
     /**
      * {@inheritdoc}
      */
-    public function setBlocking($blocking)
-    {
-        $this->blocking = $blocking;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isBlocking()
+    public function isBlocking(): bool
     {
         return $this->blocking;
     }

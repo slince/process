@@ -110,4 +110,49 @@ interface ProcessInterface
      * @return int|null The exit status code, null if the Process is not terminated
      */
     public function getExitCode(): ?int;
+
+    /**
+     * Returns true if the child process has been terminated by an uncaught signal.
+     *
+     * It always returns false on Windows.
+     *
+     * @return bool
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function hasBeenSignaled(): bool;
+
+    /**
+     * Returns the number of the signal that caused the child process to terminate its execution.
+     *
+     * It is only meaningful if hasBeenSignaled() returns true.
+     *
+     * @return int
+     *
+     * @throws RuntimeException In case --enable-sigchild is activated
+     * @throws LogicException   In case the process is not terminated
+     */
+    public function getTermSignal(): int;
+
+    /**
+     * Returns true if the child process has been stopped by a signal.
+     *
+     * It always returns false on Windows.
+     *
+     * @return bool
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function hasBeenStopped(): bool;
+
+    /**
+     * Returns the number of the signal that caused the child process to stop its execution.
+     *
+     * It is only meaningful if hasBeenStopped() returns true.
+     *
+     * @return int
+     *
+     * @throws LogicException In case the process is not terminated
+     */
+    public function getStopSignal(): int;
 }

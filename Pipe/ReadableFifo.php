@@ -1,7 +1,14 @@
 <?php
-/**
- * Process Library
- * @author Tao <taosikai@yeah.net>
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the slince/process package.
+ *
+ * (c) Slince <taosikai@yeah.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 namespace Slince\Process\Pipe;
 
@@ -9,7 +16,7 @@ use Slince\Process\Exception\RuntimeException;
 
 class ReadableFifo extends AbstractFifo
 {
-    public function __construct($pathname, $blocking = true, $mode = 'r+', $permission = 0666)
+    public function __construct(string $pathname, bool $blocking = true, string $mode = 'r+', int $permission = 0666)
     {
         parent::__construct($pathname, $blocking, $mode, $permission);
     }
@@ -17,35 +24,17 @@ class ReadableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function read()
+    public function read(): string
     {
         $stream = $this->getStream();
-        if ($this->blocking) {
-            $read = [$stream];
-            $write = [];
-            $except = [];
-            if (stream_select($read, $write, $except, null) > 0) {
-                return stream_get_contents($stream);
-            }
-        }
         return stream_get_contents($stream);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function write($message)
+    public function write(string $message): void
     {
         throw new RuntimeException("Cannot write some data to an write-only fifo");
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getStream()
-    {
-        $stream = parent::getStream();
-        stream_set_blocking($stream, false);
-        return $stream;
     }
 }

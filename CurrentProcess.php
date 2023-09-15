@@ -24,6 +24,11 @@ final class CurrentProcess
         pcntl_async_signals(true);
     }
 
+    /**
+     * Returns the curren process id.
+     *
+     * @return int
+     */
     public function pid(): int
     {
         if (null === $this->pid) {
@@ -31,7 +36,6 @@ final class CurrentProcess
         }
         return $this->pid;
     }
-
 
     /**
      * Registers a callback for some signals.
@@ -55,19 +59,5 @@ final class CurrentProcess
     public function getSignalHandler(int $signal): callable|int
     {
         return pcntl_signal_get_handler($signal);
-    }
-
-    public function wait(callable $callback = null)
-    {
-        if (null === $callback) {
-            $callback = function(int $pid, StatusInfo $status){
-                // ignore logic.
-            };
-        }
-        while (true) {
-            $pid = \pcntl_wait($status);
-            $statusInfo = new StatusInfo($status);
-            call_user_func($callback, $pid, $statusInfo);
-        }
     }
 }
