@@ -24,10 +24,21 @@ class ReadableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function read(): string
+    public function read(int $length = 1024): string
     {
         $stream = $this->getStream();
-        return stream_get_contents($stream);
+        if (!$this->blocking) {
+            $read = [$stream];
+            $write = null;
+            $except = null;
+
+            $bytes = '';
+            if (stream_select($read, $write, $except, 1, 0) > 0) {
+                $bytes = fread($stream, $length);
+            }
+            return $bytes;
+        }
+        return fread($stream, $length);
     }
 
     /**

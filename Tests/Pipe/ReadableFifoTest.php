@@ -37,7 +37,7 @@ class ReadableFifoTest extends TestCase
         $process->start();
         $fifo = new ReadableFifo('/tmp/test1.pipe', false);
         $this->assertEmpty($fifo->read());
-//        $process->wait();
+        $process->wait();
     }
 
     public function testBlockingRead()

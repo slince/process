@@ -24,7 +24,7 @@ class WritableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function read(): string
+    public function read(int $length = 1024): string
     {
         throw new RuntimeException("Cannot read data from an write-only fifo");
     }

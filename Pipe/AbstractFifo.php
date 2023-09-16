@@ -47,7 +47,9 @@ abstract class AbstractFifo implements PipeInterface
         }
         $this->stream = fopen($this->pathname, $this->mode);
         if (!$this->blocking) {
-            stream_set_blocking($this->stream, false);
+            if (false === stream_set_blocking($this->stream, false)) {
+                throw new RuntimeException('Cannot set steam to non blocking');
+            }
         }
         return $this->stream;
     }

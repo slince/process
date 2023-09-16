@@ -16,9 +16,10 @@ interface PipeInterface
 {
     /**
      * Reads data from the pipe
+     * @param int $length The bytes that need to read.
      * @return string
      */
-    public function read(): string;
+    public function read(int $length = 1024): string;
 
     /**
      * Write data to the pipe
