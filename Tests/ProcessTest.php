@@ -63,9 +63,11 @@ class ProcessTest extends TestCase
         });
         $process->start();
         $process->stop();
-        var_dump($process->hasBeenSignaled(), $process->hasBeenStopped(), $process->hasBeenExited());
         $this->assertTrue($process->hasBeenStopped());
-        $this->assertEquals(SIGKILL, $process->getStopSignal());
+        $this->assertTrue($process->hasBeenExited());
+        $this->assertEquals(SIGSTOP, $process->getStopSignal());
+//        $process->continue();
+//        $this->assertTrue($process->hasBeenContinued());
     }
 
     public function testIfSignaled()

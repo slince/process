@@ -54,7 +54,12 @@ interface ProcessInterface
     /**
      * Stop the process.
      */
-    public function stop();
+    public function stop(): void;
+
+    /**
+     * Resume the process.
+     */
+    public function continue(): void;
 
     /**
      * Terminate the process with an optional signal.

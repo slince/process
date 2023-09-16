@@ -111,15 +111,6 @@ final class Process implements ProcessInterface
     /**
      * {@inheritdoc}
      */
-    public function stop(): void
-    {
-        $this->signal(SIGSTOP);
-        $this->status = self::STATUS_TERMINATED;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getPid(): ?int
     {
         return $this->pid;
@@ -131,7 +122,7 @@ final class Process implements ProcessInterface
     public function signal(int $signal): void
     {
         if (!$this->isRunning()) {
-            throw new RuntimeException("The process is not currently running");
+//            throw new RuntimeException("The process is not currently running");
         }
         posix_kill($this->getPid(), $signal);
     }
@@ -153,13 +144,30 @@ final class Process implements ProcessInterface
         }
     }
 
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stop(): void
+    {
+        $this->signal(SIGSTOP);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function continue(): void
+    {
+        $this->signal(SIGCONT);
+    }
+
+
     /**
      * {@inheritdoc}
      */
     public function terminate(int $signal = SIGKILL): void
     {
         $this->signal($signal);
-        $this->status = self::STATUS_TERMINATED;
     }
 
     /**

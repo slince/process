@@ -5,4 +5,4 @@ vendor/
 composer.lock
 .idea
 tmp/
- _login.png
+.phpunit.result.cache
