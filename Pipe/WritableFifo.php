@@ -16,7 +16,7 @@ use Slince\Process\Exception\RuntimeException;
 
 class WritableFifo extends AbstractFifo
 {
-    public function __construct(string $pathname, bool $blocking = true, string $mode = 'w+', int $permission = 0666)
+    public function __construct(string $pathname, bool $blocking = true, string $mode = 'w', int $permission = 0666)
     {
         parent::__construct($pathname, $blocking, $mode, $permission);
     }

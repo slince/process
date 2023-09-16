@@ -16,7 +16,7 @@ use Slince\Process\Exception\RuntimeException;
 
 class ReadableFifo extends AbstractFifo
 {
-    public function __construct(string $pathname, bool $blocking = true, string $mode = 'r+', int $permission = 0666)
+    public function __construct(string $pathname, bool $blocking = true, string $mode = 'r', int $permission = 0666)
     {
         parent::__construct($pathname, $blocking, $mode, $permission);
     }
@@ -33,7 +33,7 @@ class ReadableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function write(string $message): void
+    public function write(string $message): int
     {
         throw new RuntimeException("Cannot write some data to an write-only fifo");
     }

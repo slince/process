@@ -25,10 +25,10 @@ abstract class AbstractFifo implements PipeInterface
 
     public function __construct(string $pathname, bool $blocking, string $mode, int $permission = 0666)
     {
-        if (($isExisted = file_exists($pathname)) && filetype($pathname) !== 'fifo') {
+        if (($exists = file_exists($pathname)) && filetype($pathname) !== 'fifo') {
             throw new InvalidArgumentException("The file already exists, but is not a valid fifo file");
         }
-        if (!$isExisted && !posix_mkfifo($pathname, $permission)) {
+        if (!$exists && !posix_mkfifo($pathname, $permission)) {
             throw new RuntimeException("Cannot create the fifo file");
         }
         $this->pathname = $pathname;

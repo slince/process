@@ -8,7 +8,7 @@ use Slince\Process\Tests\Utils;
  * command like "php ./ReadFifo.php hello 2"
  */
 
-$sleep = isset($argv[2]) ? $argv[2] : 0;
+$sleep = $argv[2] ?? 0;
 if ($sleep) {
     sleep($sleep);
 }

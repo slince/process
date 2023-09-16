@@ -4,6 +4,8 @@ namespace Slince\Process\Tests\Pipe;
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Exception\RuntimeException;
 use Slince\Process\Pipe\ReadableFifo;
+use Slince\Process\Pipe\WritableFifo;
+use Slince\Process\Process;
 use Slince\Process\Tests\Utils;
 
 class ReadableFifoTest extends TestCase
@@ -26,16 +28,26 @@ class ReadableFifoTest extends TestCase
 
     public function testNonBlockingRead()
     {
-        $this->syncExecute(sprintf("php %s %s %d", __DIR__ . '/WriteFifo.php', 'hello', 2));
+        $process = new Process(function () {
+            $fifo = new WritableFifo('/tmp/test1.pipe', true);
+            $fifo->write("hello");
+        });
+        $process->start();
         $fifo = new ReadableFifo('/tmp/test1.pipe', false);
         $this->assertEmpty($fifo->read());
+        $process->wait();
     }
 
     public function testBlockingRead()
     {
-        $this->syncExecute(sprintf("php %s %s %d", __DIR__ . '/WriteFifo.php', 'hello', 2));
+        $process = new Process(function () {
+            $fifo = new WritableFifo('/tmp/test1.pipe', true);
+            $fifo->write("hello");
+        });
+        $process->start();
         $fifo = new ReadableFifo('/tmp/test1.pipe', true);
         $this->assertEquals('hello', $fifo->read());
+        $process->wait();
     }
 
     public function testWrite()
