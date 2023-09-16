@@ -32,9 +32,12 @@ class WritableFifo extends AbstractFifo
     /**
      * {@inheritdoc}
      */
-    public function write($message): void
+    public function write(string $message): int
     {
         $stream = $this->getStream();
-        fwrite($stream, $message, strlen($message));
+        if (false === ($bytes = fwrite($stream, $message, strlen($message)))) {
+            throw new RuntimeException(sprintf('Cannot write message to the fifo "%s"', $this->pathname));
+        }
+        return $bytes;
     }
 }

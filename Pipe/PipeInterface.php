@@ -24,7 +24,7 @@ interface PipeInterface
      * Write data to the pipe
      * @param string $message
      */
-    public function write(string $message): void;
+    public function write(string $message): int;
 
     /**
      * Gets the stream of the pipe

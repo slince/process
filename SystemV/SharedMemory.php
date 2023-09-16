@@ -20,7 +20,7 @@ final class SharedMemory
      * The resource that be generated after call "shm_attach"
      * @var SysvSharedMemory
      */
-    protected $shmId;
+    protected SysvSharedMemory $shmId;
 
     /**
      * The size of the shared memory
@@ -88,20 +88,13 @@ final class SharedMemory
     }
 
     /**
-     * Checks whether the memory is enabled
-     * @return bool
-     */
-    public function isEnabled(): bool
-    {
-        return is_resource($this->shmId);
-    }
-
-    /**
      * Disconnects from shared memory
      */
     public function close(): void
     {
-        is_resource($this->shmId) && shm_detach($this->shmId);
+        if ($this->shmId) {
+            shm_detach($this->shmId);
+        }
     }
 
 
@@ -111,7 +104,7 @@ final class SharedMemory
      */
     public function destroy(): void
     {
-        if (is_resource($this->shmId)) {
+        if ($this->shmId) {
             shm_remove($this->shmId);
             shm_detach($this->shmId);
         }

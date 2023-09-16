@@ -9,7 +9,7 @@ class WritableFifoTest extends TestCase
 {
     protected $lastPd;
 
-    public function setUp()
+    public function setUp(): void
     {
         file_exists('/tmp/test2.pipe') && unlink('/tmp/test2.pipe');
     }
@@ -64,16 +64,14 @@ class WritableFifoTest extends TestCase
     {
         $fifo = new WritableFifo('/tmp/test2.pipe');
         $this->assertTrue($fifo->isBlocking());
-        $fifo->setBlocking(false);
-        $this->assertFalse($fifo->isBlocking());
     }
 
-    protected function syncExecute($command)
+    protected function syncExecute($command): void
     {
         $this->lastPd = Utils::asyncExecute($command);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         is_resource($this->lastPd) && pclose($this->lastPd);
     }

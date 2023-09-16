@@ -15,8 +15,7 @@ final class Utils
         if (!file_exists($pathname)) {
             posix_mkfifo($pathname, 0666);
         }
-        $fifo = fopen($pathname, 'r+');
-        return $fifo;
+        return fopen($pathname, 'r+');
     }
 
     /**
@@ -24,13 +23,12 @@ final class Utils
      * @param string $pathname
      * @return bool|resource
      */
-    public static function makeNativeWriteFifo($pathname)
+    public static function makeNativeWriteFifo(string $pathname)
     {
         if (!file_exists($pathname)) {
             posix_mkfifo($pathname, 0666);
         }
-        $fifo = fopen($pathname, 'r+');
-        return $fifo;
+        return fopen($pathname, 'r+');
     }
 
     /**
@@ -38,7 +36,7 @@ final class Utils
      * @param string $command
      * @return bool|resource
      */
-    public static function asyncExecute($command)
+    public static function asyncExecute(string $command)
     {
         $pd = popen($command, 'r');
         stream_set_blocking($pd, false);
@@ -51,6 +49,6 @@ final class Utils
      */
     public static function getLastPd()
     {
-        return static::$pd;
+        return Utils::$pd;
     }
 }

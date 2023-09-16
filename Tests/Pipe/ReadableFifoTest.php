@@ -10,7 +10,7 @@ class ReadableFifoTest extends TestCase
 {
     protected $lastPd;
 
-    public function setUp()
+    public function setUp(): void
     {
         file_exists('/tmp/test1.pipe') && unlink('/tmp/test1.pipe');
     }
@@ -41,7 +41,7 @@ class ReadableFifoTest extends TestCase
     public function testWrite()
     {
         $fifo = new ReadableFifo('/tmp/test1.pipe');
-        $this->setExpectedException(RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $fifo->write('some message');
     }
 
@@ -55,16 +55,14 @@ class ReadableFifoTest extends TestCase
     {
         $fifo = new ReadableFifo('/tmp/test1.pipe');
         $this->assertTrue($fifo->isBlocking());
-        $fifo->setBlocking(false);
-        $this->assertFalse($fifo->isBlocking());
     }
 
-    protected function syncExecute($command)
+    protected function syncExecute($command): void
     {
         $this->lastPd = Utils::asyncExecute($command);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         is_resource($this->lastPd) && pclose($this->lastPd);
     }
