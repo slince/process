@@ -137,39 +137,39 @@ interface ProcessInterface
     /**
      * Returns the exit code returned by the process.
      *
-     * @return int The exit status code
+     * @return int|null The exit status code
      */
-    public function getExitCode(): int;
+    public function getExitCode(): ?int;
 
     /**
      * Returns the exit code text returned by the process.
      *
-     * @return string The exit status code text
+     * @return string|null The exit status code text
      */
-    public function getExitCodeText(): string;
+    public function getExitCodeText(): ?string;
 
     /**
      * Returns the number of the signal that caused the child process to terminate its execution.
      *
      * It is only meaningful if hasBeenSignaled() returns true.
      *
-     * @return int
+     * @return int|null
      *
      * @throws RuntimeException In case --enable-sigchild is activated
      * @throws LogicException   In case the process is not terminated
      */
-    public function getTermSignal(): int;
+    public function getTermSignal(): ?int;
 
     /**
      * Returns the number of the signal that caused the child process to stop its execution.
      *
      * It is only meaningful if hasBeenStopped() returns true.
      *
-     * @return int
+     * @return int|null
      *
      * @throws LogicException In case the process is not terminated
      */
-    public function getStopSignal(): int;
+    public function getStopSignal(): ?int;
 
     /**
      * Returns true if the child process has been continued.

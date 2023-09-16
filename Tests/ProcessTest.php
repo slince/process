@@ -58,17 +58,19 @@ class ProcessTest extends TestCase
     public function testIfStopped()
     {
         $process = new Process(function () {
-            sleep(12);
+            while (true) {
+                echo 'hehe', PHP_EOL;
+            }
         });
         $process->start();
         $process->stop();
 
         $this->assertTrue($process->isStopped());
-        var_dump($process->getStatus());
         $this->assertEquals(SIGSTOP, $process->getStopSignal());
 
-//        $process->continue();
+        $process->continue();
         $this->assertTrue($process->hasBeenContinued());
+
         $process->wait();
     }
 

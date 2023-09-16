@@ -141,9 +141,9 @@ final class Process implements ProcessInterface
             $this->status = self::STATUS_RUNNING;
         } else {
             if (pcntl_wifexited($this->statusInfo)) {
+                $this->status = self::STATUS_EXITED;
                 $this->exitCode = pcntl_wexitstatus($this->statusInfo);
                 $this->exitCodeText = pcntl_strerror($this->exitCode);
-                $this->status = self::STATUS_EXITED;
             }
             if (pcntl_wifsignaled($this->statusInfo)) {
                 $this->status = self::STATUS_TERMINATED;
@@ -290,29 +290,25 @@ final class Process implements ProcessInterface
     /**
      * {@inheritdoc}
      */
-    public function getExitCode(): int
+    public function getExitCode(): ?int
     {
-        $this->requireProcessIsExited(__FUNCTION__);
-
-        return pcntl_wexitstatus($this->statusInfo);
+        return $this->exitCode;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getExitCodeText(): string
+    public function getExitCodeText(): ?string
     {
-        return pcntl_strerror($this->getExitCode());
+        return $this->exitCodeText;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getStopSignal(): int
+    public function getStopSignal(): ?int
     {
-        $this->requireProcessIsStopped(__FUNCTION__);
-
-        return pcntl_wstopsig($this->statusInfo);
+        return $this->stopSignal;
     }
 
     /**
@@ -320,9 +316,7 @@ final class Process implements ProcessInterface
      */
     public function getTermSignal(): int
     {
-        $this->requireProcessIsTerminated(__FUNCTION__);
-
-        return pcntl_wtermsig($this->statusInfo);
+        return $this->termSignal;
     }
 
     /**
