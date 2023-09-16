@@ -42,6 +42,12 @@ interface ProcessInterface
     const STATUS_TERMINATED = 'terminated';
 
     /**
+     * process status,exited
+     * @var string
+     */
+    const STATUS_EXITED = 'exited';
+
+    /**
      * Starts the process.
      */
     public function start(): void;
@@ -99,11 +105,11 @@ interface ProcessInterface
     public function isRunning(): bool;
 
     /**
-     * Checks if the process has been started with no regard to the current state.
+     * Checks if the process is stopped.
      *
-     * @return bool true if status is ready, false otherwise
+     * @return bool true if process is stopped, false otherwise
      */
-    public function isStarted(): bool;
+    public function isStopped(): bool;
 
     /**
      * Checks if the process is terminated.
@@ -111,6 +117,13 @@ interface ProcessInterface
      * @return bool true if process is terminated, false otherwise
      */
     public function isTerminated(): bool;
+
+    /**
+     * Checks if the process is exited.
+     *
+     * @return bool true if process is exited, false otherwise
+     */
+    public function isExited(): bool;
 
     /**
      * Gets the process status.
@@ -122,17 +135,6 @@ interface ProcessInterface
     public function getStatus(): string;
 
     /**
-     * Returns true if the child process has been exits.
-     *
-     * It always returns false on Windows.
-     *
-     * @return bool
-     *
-     * @throws LogicException In case the process is not terminated
-     */
-    public function hasBeenExited(): bool;
-
-    /**
      * Returns the exit code returned by the process.
      *
      * @return int The exit status code
@@ -140,15 +142,11 @@ interface ProcessInterface
     public function getExitCode(): int;
 
     /**
-     * Returns true if the child process has been terminated by an uncaught signal.
+     * Returns the exit code text returned by the process.
      *
-     * It always returns false on Windows.
-     *
-     * @return bool
-     *
-     * @throws LogicException In case the process is not terminated
+     * @return string The exit status code text
      */
-    public function hasBeenSignaled(): bool;
+    public function getExitCodeText(): string;
 
     /**
      * Returns the number of the signal that caused the child process to terminate its execution.
@@ -161,17 +159,6 @@ interface ProcessInterface
      * @throws LogicException   In case the process is not terminated
      */
     public function getTermSignal(): int;
-
-    /**
-     * Returns true if the child process has been stopped by a signal.
-     *
-     * It always returns false on Windows.
-     *
-     * @return bool
-     *
-     * @throws LogicException In case the process is not terminated
-     */
-    public function hasBeenStopped(): bool;
 
     /**
      * Returns the number of the signal that caused the child process to stop its execution.
