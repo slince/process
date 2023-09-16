@@ -27,7 +27,13 @@ interface ProcessInterface
      * process status,running
      * @var string
      */
-    const STATUS_STARTED = 'started';
+    const STATUS_RUNNING = 'running';
+
+    /**
+     * process status,stopped
+     * @var string
+     */
+    const STATUS_STOPPED = 'stopped';
 
     /**
      * process status,terminated

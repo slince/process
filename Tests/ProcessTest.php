@@ -64,7 +64,6 @@ class ProcessTest extends TestCase
         $process->start();
         $process->stop();
         $this->assertTrue($process->hasBeenStopped());
-        $this->assertTrue($process->hasBeenExited());
         $this->assertEquals(SIGSTOP, $process->getStopSignal());
 //        $process->continue();
 //        $this->assertTrue($process->hasBeenContinued());

@@ -78,7 +78,7 @@ final class Process implements ProcessInterface
             throw new RuntimeException("Could not fork");
         } elseif ($pid) { //Records the pid of the child process
             $this->pid = $pid;
-            $this->status = self::STATUS_STARTED;
+            $this->status = self::STATUS_RUNNING;
             $this->updateStatus(false);
         } else {
             try {
@@ -129,7 +129,7 @@ final class Process implements ProcessInterface
 
     protected function updateStatus(bool $blocking): void
     {
-        if (self::STATUS_STARTED !== $this->status) {
+        if (self::STATUS_RUNNING !== $this->status) {
             return;
         }
         $options = $blocking ? 0 : WNOHANG | WUNTRACED;
@@ -137,7 +137,7 @@ final class Process implements ProcessInterface
         if ($result == -1) {
             throw new RuntimeException("Error waits on or returns the status of the process");
         } elseif ($result === 0) {
-            $this->status = self::STATUS_STARTED;
+            $this->status = self::STATUS_RUNNING;
         } else {
             //The process is terminated
             $this->status = self::STATUS_TERMINATED;
@@ -165,7 +165,7 @@ final class Process implements ProcessInterface
     /**
      * {@inheritdoc}
      */
-    public function terminate(int $signal = SIGKILL): void
+    public function terminate(int $signal = SIGTERM): void
     {
         $this->signal($signal);
     }
@@ -175,7 +175,7 @@ final class Process implements ProcessInterface
      */
     public function isStarted(): bool
     {
-        return self::STATUS_STARTED === $this->status;
+        return self::STATUS_RUNNING === $this->status;
     }
 
     /**
@@ -184,12 +184,12 @@ final class Process implements ProcessInterface
     public function isRunning(): bool
     {
         //if process is not running, return false
-        if (self::STATUS_STARTED !== $this->status) {
+        if (self::STATUS_RUNNING !== $this->status) {
             return false;
         }
         //if the process is running, update process status again
         $this->updateStatus(false);
-        return self::STATUS_STARTED === $this->status;
+        return self::STATUS_RUNNING === $this->status;
     }
 
     /**
