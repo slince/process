@@ -128,12 +128,12 @@ final class Process implements ProcessInterface
 
     protected function updateStatus(bool $blocking): void
     {
-        if (self::STATUS_RUNNING !== $this->status) {
+        if (!$this->isAliveStatus()) {
             return;
         }
         $options = $blocking ? 0 : WNOHANG | WUNTRACED;
         $result = pcntl_waitpid($this->getPid(), $this->statusInfo, $options);
-        if ($result == -1) {
+        if ($result === -1) {
             throw new RuntimeException("Error waits on or returns the status of the process");
         } elseif ($result === 0) {
             $this->status = self::STATUS_RUNNING;
@@ -150,6 +150,15 @@ final class Process implements ProcessInterface
                 $this->status = self::STATUS_STOPPED;
             }
         }
+    }
+
+    /**
+     * Checks whether the process status is running.
+     * @return bool
+     */
+    private function isAliveStatus(): bool
+    {
+        return $this->status === self::STATUS_RUNNING || $this->status === self::STATUS_STOPPED;
     }
 
     /**

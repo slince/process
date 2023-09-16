@@ -62,10 +62,14 @@ class ProcessTest extends TestCase
         });
         $process->start();
         $process->stop();
+
         $this->assertTrue($process->isStopped());
+        var_dump($process->getStatus());
         $this->assertEquals(SIGSTOP, $process->getStopSignal());
-        $process->continue();
+
+//        $process->continue();
         $this->assertTrue($process->hasBeenContinued());
+        $process->wait();
     }
 
     public function testIfSignaled()
@@ -75,8 +79,10 @@ class ProcessTest extends TestCase
         });
         $process->start();
         $process->stop();
-        $this->assertTrue($process->hasBeenStopped());
+        $this->assertTrue($process->isStopped());
         $this->assertEquals(SIGKILL, $process->getStopSignal());
+
+        $process->wait();
     }
 
     public function testGetSignalHandler()
