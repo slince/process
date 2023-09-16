@@ -31,8 +31,6 @@ final class Process implements ProcessInterface
 
     protected ?int $statusInfo = null;
 
-    protected ?int $exitCode = null;
-
     protected static CurrentProcess $currentProcess;
 
     public function __construct(callable $callback)
@@ -115,8 +113,8 @@ final class Process implements ProcessInterface
      */
     public function stop(): void
     {
-        $this->status = self::STATUS_TERMINATED;
         $this->signal(SIGSTOP);
+        $this->status = self::STATUS_TERMINATED;
     }
 
     /**
@@ -160,8 +158,16 @@ final class Process implements ProcessInterface
      */
     public function terminate(int $signal = SIGKILL): void
     {
-        $this->status = self::STATUS_TERMINATED;
         $this->signal($signal);
+        $this->status = self::STATUS_TERMINATED;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isStarted(): bool
+    {
+        return self::STATUS_STARTED === $this->status;
     }
 
     /**
@@ -175,14 +181,6 @@ final class Process implements ProcessInterface
         }
         //if the process is running, update process status again
         $this->updateStatus(false);
-        return self::STATUS_STARTED === $this->status;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isStarted(): bool
-    {
         return self::STATUS_STARTED === $this->status;
     }
 
