@@ -13,14 +13,15 @@ declare(strict_types=1);
 namespace Slince\Process\SystemV;
 
 use Slince\Process\Exception\RuntimeException;
+use SysvMessageQueue;
 
 final class MessageQueue
 {
     /**
      * The resource that can be used to access to the system v message queue
-     * @var resource
+     * @var SysvMessageQueue
      */
-    protected $mqId;
+    protected SysvMessageQueue $mqId;
 
     public function __construct(string $pathname = __FILE__, int $mode = 0666)
     {
@@ -78,7 +79,7 @@ final class MessageQueue
      * @param bool $blocking
      * @param bool $unserialize
      */
-    public function send(string $message, int $messageType, bool $blocking = true, bool $unserialize = false): void
+    public function send(string $message, int $messageType = 1, bool $blocking = true, bool $unserialize = false): void
     {
         if (!msg_send(
             $this->mqId,
@@ -101,7 +102,7 @@ final class MessageQueue
      * @param bool $unserialize
      * @return string|null
      */
-    public function receive(int $desiredMessageType, bool $blocking = true, int $maxSize = 10240, bool $unserialize = false): ?string
+    public function receive(bool $blocking = true, int $desiredMessageType = 1, int $maxSize = 10240, bool $unserialize = false): ?string
     {
         $flags = $blocking ? 0 : MSG_IPC_NOWAIT;
         if (!msg_receive(
@@ -114,8 +115,24 @@ final class MessageQueue
             $flags,
             $errorCode
         )) {
-            throw new RuntimeException("Failed to receive message from the queue", $errorCode);
+            if ($blocking) {
+                throw new RuntimeException("Failed to receive message from the queue, error code: {$errorCode}", $errorCode);
+            }
         }
-        return $message;
+        return $message ?: null;
+    }
+
+    /**
+     * Remove the message queue
+     * @return void
+     */
+    public function destroy(): void
+    {
+        msg_remove_queue($this->mqId);
+    }
+
+    public function __destruct()
+    {
+        $this->destroy();
     }
 }

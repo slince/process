@@ -10,7 +10,7 @@ class MessageQueueTest extends TestCase
     public function testSend()
     {
         $queue  = new MessageQueue();
-        $this->assertTrue($queue->send('hello'));
+        $queue->send('hello', 1);
     }
 
     public function testReceive()
@@ -19,15 +19,13 @@ class MessageQueueTest extends TestCase
             $queue = new MessageQueue();
             $queue->send('hello');
         });
-        $process->start();
-        $process->wait();
+        $process->run();
         $queue = new MessageQueue();
         $this->assertEquals('hello', $queue->receive());
     }
 
     public function testBlockingReceive()
     {
-        $this->markTestSkipped();
         $process = new Process(function () {
             sleep(2);
             $queue = new MessageQueue();
@@ -35,12 +33,8 @@ class MessageQueueTest extends TestCase
         });
         $process->start();
         $queue = new MessageQueue();
-        echo $queue->receive(false);
-        echo $queue->receive(false);
-        echo 'start';
-        $this->assertFalse($queue->receive(false));
-        echo 'end';
-        $this->assertEquals('hello', $queue->receive(true));
+        $this->assertNull($queue->receive(false));
+        $this->assertEquals('hello', $queue->receive());
         $process->wait();
     }
 
