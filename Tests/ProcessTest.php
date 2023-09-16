@@ -3,6 +3,7 @@ namespace Slince\Process\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Process\Process;
+use Slince\Process\ProcessInterface;
 
 class ProcessTest extends TestCase
 {
@@ -67,11 +68,6 @@ class ProcessTest extends TestCase
 
         $this->assertTrue($process->isStopped());
         $this->assertEquals(SIGSTOP, $process->getStopSignal());
-
-        $process->continue();
-        $this->assertTrue($process->hasBeenContinued());
-
-        $process->wait();
     }
 
     public function testIfSignaled()
@@ -80,19 +76,10 @@ class ProcessTest extends TestCase
             sleep(1);
         });
         $process->start();
-        $process->stop();
-        $this->assertTrue($process->isStopped());
-        $this->assertEquals(SIGKILL, $process->getStopSignal());
-
-        $process->wait();
-    }
-
-    public function testGetSignalHandler()
-    {
-        $process = new Process(function () {
-            sleep(1);
-        });
-        $this->assertInstanceOf(SignalHandler::class, $process->getSignalHandler());
+        $process->terminate();
+        sleep(1);
+        $this->assertTrue($process->isTerminated());
+        $this->assertEquals(SIGTERM, $process->getTermSignal());
     }
 
     public function testGetStatus()
@@ -100,8 +87,10 @@ class ProcessTest extends TestCase
         $process = new Process(function () {
             sleep(1);
         });
-        $this->assertNull($process->getStatus());
-        $process->run();
-        $this->assertInstanceOf(Status::class, $process->getStatus());
+        $this->assertEquals(ProcessInterface::STATUS_READY, $process->getStatus());
+        $process->start();
+        $this->assertEquals(ProcessInterface::STATUS_RUNNING, $process->getStatus());
+        $process->wait();
+        $this->assertEquals(ProcessInterface::STATUS_EXITED, $process->getStatus());
     }
 }
