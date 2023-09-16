@@ -30,6 +30,8 @@ final class Process implements ProcessInterface
     protected ?int $statusInfo = null;
     protected ?int $exitCode;
     protected ?string $exitCodeText;
+    protected ?int $stopSignal;
+    protected ?int $termSignal;
 
     protected static CurrentProcess $currentProcess;
 
@@ -145,9 +147,11 @@ final class Process implements ProcessInterface
             }
             if (pcntl_wifsignaled($this->statusInfo)) {
                 $this->status = self::STATUS_TERMINATED;
+                $this->termSignal = pcntl_wtermsig($this->statusInfo);
             }
             if (pcntl_wifstopped($this->statusInfo)) {
                 $this->status = self::STATUS_STOPPED;
+                $this->stopSignal = pcntl_wstopsig($this->statusInfo);
             }
         }
     }
