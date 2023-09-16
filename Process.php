@@ -76,12 +76,11 @@ final class Process implements ProcessInterface
             throw new RuntimeException("The process is already running");
         }
         $pid = \pcntl_fork();
-        if ($pid == -1) {
+        if ($pid < 0) {
             throw new RuntimeException("Could not fork");
         } elseif ($pid > 0) { //Records the pid of the child process
             $this->pid = $pid;
             $this->status = self::STATUS_RUNNING;
-            $this->updateStatus(false);
         } else {
             try {
                 $exitCode = call_user_func($this->callback);

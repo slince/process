@@ -32,12 +32,12 @@ class ReadableFifoTest extends TestCase
             sleep(2);
             $fifo = new WritableFifo('/tmp/test1.pipe', true);
             $fifo->write("hello");
+            return 0;
         });
         $process->start();
-        echo 'started';
         $fifo = new ReadableFifo('/tmp/test1.pipe', false);
         $this->assertEmpty($fifo->read());
-        $process->wait();
+//        $process->wait();
     }
 
     public function testBlockingRead()
