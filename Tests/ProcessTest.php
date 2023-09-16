@@ -27,23 +27,6 @@ class ProcessTest extends TestCase
         $this->assertFalse($process->isRunning());
     }
 
-    public function testGetExitCode()
-    {
-        $process = new Process(function () {
-            usleep(100);
-        });
-        $process->start();
-        $process->wait();
-        $this->assertTrue($process->hasBeenExited());
-        $this->assertEquals(0, $process->getExitCode());
-        $process = new Process(function () {
-            exit(255);
-        });
-        $process->run();
-        $this->assertTrue($process->hasBeenExited());
-        $this->assertEquals(255, $process->getExitCode());
-    }
-
     public function testGetPid()
     {
         $process = new Process(function () {
@@ -55,6 +38,22 @@ class ProcessTest extends TestCase
         $process->wait();
     }
 
+    public function testGetExitCode()
+    {
+        $process = new Process(function () {
+            usleep(100);
+        });
+        $process->run();
+        $this->assertTrue($process->isExited());
+        $this->assertEquals(0, $process->getExitCode());
+        $process = new Process(function () {
+            exit(255);
+        });
+        $process->run();
+        $this->assertTrue($process->isExited());
+        $this->assertEquals(255, $process->getExitCode());
+        $this->assertNotEmpty($process->getExitCodeText());
+    }
 
     public function testIfStopped()
     {
@@ -63,10 +62,10 @@ class ProcessTest extends TestCase
         });
         $process->start();
         $process->stop();
-        $this->assertTrue($process->hasBeenStopped());
+        $this->assertTrue($process->isStopped());
         $this->assertEquals(SIGSTOP, $process->getStopSignal());
-//        $process->continue();
-//        $this->assertTrue($process->hasBeenContinued());
+        $process->continue();
+        $this->assertTrue($process->hasBeenContinued());
     }
 
     public function testIfSignaled()

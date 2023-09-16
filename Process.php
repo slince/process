@@ -120,8 +120,8 @@ final class Process implements ProcessInterface
      */
     public function signal(int $signal): void
     {
-        if (!$this->isRunning()) {
-            throw new RuntimeException("The process is not currently running");
+        if (!$this->isRunning() && !$this->isStopped()) {
+            throw new RuntimeException("The process is not currently running or stopped");
         }
         posix_kill($this->getPid(), $signal);
     }
@@ -245,7 +245,7 @@ final class Process implements ProcessInterface
      */
     private function requireProcessIsStopped(string $functionName): void
     {
-        if (!$this->isTerminated()) {
+        if (!$this->isStopped()) {
             throw new LogicException(sprintf('Process must be stopped before calling "%s()".', $functionName));
         }
     }
@@ -269,7 +269,7 @@ final class Process implements ProcessInterface
      */
     private function requireProcessIsExited(string $functionName): void
     {
-        if (!$this->isTerminated()) {
+        if (!$this->isExited()) {
             throw new LogicException(sprintf('Process must be exited before calling "%s()".', $functionName));
         }
     }
