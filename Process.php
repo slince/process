@@ -78,7 +78,7 @@ final class Process implements ProcessInterface
         $pid = \pcntl_fork();
         if ($pid == -1) {
             throw new RuntimeException("Could not fork");
-        } elseif ($pid) { //Records the pid of the child process
+        } elseif ($pid > 0) { //Records the pid of the child process
             $this->pid = $pid;
             $this->status = self::STATUS_RUNNING;
             $this->updateStatus(false);

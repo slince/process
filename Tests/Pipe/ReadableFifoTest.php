@@ -29,10 +29,12 @@ class ReadableFifoTest extends TestCase
     public function testNonBlockingRead()
     {
         $process = new Process(function () {
+            sleep(2);
             $fifo = new WritableFifo('/tmp/test1.pipe', true);
             $fifo->write("hello");
         });
         $process->start();
+        echo 'started';
         $fifo = new ReadableFifo('/tmp/test1.pipe', false);
         $this->assertEmpty($fifo->read());
         $process->wait();
