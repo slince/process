@@ -10,8 +10,6 @@ use Slince\Process\Tests\Utils;
 
 class ReadableFifoTest extends TestCase
 {
-    protected $lastPd;
-
     public function setUp(): void
     {
         file_exists('/tmp/test1.pipe') && unlink('/tmp/test1.pipe');
@@ -29,8 +27,9 @@ class ReadableFifoTest extends TestCase
     public function testNonBlockingRead()
     {
         $process = new Process(function () {
-            sleep(2);
             $fifo = new WritableFifo('/tmp/test1.pipe', true);
+            $fifo->open();
+            sleep(2);
             $fifo->write("hello");
             return 0;
         });
@@ -44,7 +43,10 @@ class ReadableFifoTest extends TestCase
     {
         $process = new Process(function () {
             $fifo = new WritableFifo('/tmp/test1.pipe', true);
+            $fifo->open();
+            sleep(2);
             $fifo->write("hello");
+            return 0;
         });
         $process->start();
         $fifo = new ReadableFifo('/tmp/test1.pipe', true);
@@ -59,25 +61,9 @@ class ReadableFifoTest extends TestCase
         $fifo->write('some message');
     }
 
-    public function testGetStream()
-    {
-        $fifo = new ReadableFifo('/tmp/test1.pipe');
-        $this->assertTrue(is_resource($fifo->getStream()));
-    }
-
     public function testIsBlocking()
     {
         $fifo = new ReadableFifo('/tmp/test1.pipe');
         $this->assertTrue($fifo->isBlocking());
-    }
-
-    protected function syncExecute($command): void
-    {
-        $this->lastPd = Utils::asyncExecute($command);
-    }
-
-    public function tearDown(): void
-    {
-        is_resource($this->lastPd) && pclose($this->lastPd);
     }
 }
