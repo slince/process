@@ -15,7 +15,7 @@ namespace Slince\Process\Pipe;
 use Slince\Process\Exception\InvalidArgumentException;
 use Slince\Process\Exception\RuntimeException;
 
-abstract class AbstractFifo implements PipeInterface
+abstract class AbstractFifo implements FifoInterface
 {
     protected string $pathname;
     protected string $mode;
@@ -38,6 +38,14 @@ abstract class AbstractFifo implements PipeInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function isBlocking(): bool
+    {
+        return $this->blocking;
+    }
+
+    /**
      * Open the fifo.
      *
      * @return void
@@ -55,6 +63,14 @@ abstract class AbstractFifo implements PipeInterface
     /**
      * {@inheritdoc}
      */
+    public function close(): void
+    {
+        is_resource($this->stream) && fclose($this->stream);
+    }
+    
+    /**
+     * {@inheritdoc}
+     */
     public function getStream()
     {
         if (null !== $this->stream) {
@@ -62,21 +78,5 @@ abstract class AbstractFifo implements PipeInterface
         }
         $this->open();
         return $this->stream;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function close(): void
-    {
-        is_resource($this->stream) && fclose($this->stream);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isBlocking(): bool
-    {
-        return $this->blocking;
     }
 }

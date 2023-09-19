@@ -27,17 +27,6 @@ class ReadableFifo extends AbstractFifo
     public function read(int $length = 1024): string
     {
         $stream = $this->getStream();
-        if (!$this->blocking) {
-            $read = [$stream];
-            $write = null;
-            $except = null;
-
-            $bytes = '';
-            if (stream_select($read, $write, $except, 1, 0) > 0) {
-                $bytes = fread($stream, $length);
-            }
-            return $bytes;
-        }
         return fread($stream, $length);
     }
 
