@@ -1,7 +1,8 @@
-# Process library
+# Process Library
 
-[![Build Status](https://img.shields.io/travis/slince/process/master.svg?style=flat-square)](https://travis-ci.org/slince/process)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/slince/process/test.yml?style=flat-square)](https://github.com/slince/process/actions)
 [![Coverage Status](https://img.shields.io/codecov/c/github/slince/process.svg?style=flat-square)](https://codecov.io/github/slince/process)
+[![Total Downloads](https://img.shields.io/packagist/dt/slince/process.svg?style=flat-square)](https://packagist.org/packages/slince/process)
 [![Latest Stable Version](https://img.shields.io/packagist/v/slince/process.svg?style=flat-square&label=stable)](https://packagist.org/packages/slince/process)
 [![Scrutinizer](https://img.shields.io/scrutinizer/g/slince/process.svg?style=flat-square)](https://scrutinizer-ci.com/g/slince/process/?branch=master)
 
@@ -47,10 +48,10 @@ $process->wait(); //waiting for the process to exit
 
 ```php
 $process = new Slince\Process\Process(function(){
+    Slince\Process\Process::current()->signal([SIGUSR1, SIGUSR2], function(){
+        echo 'trigger signal';
+    });
     echo 'hello, my pid is ' . getmypid();
-});
-$process->getSignalHandler()->register([SIGUSR1, SIGUSR2], function(){
-    echo 'trigger signal';
 });
 $process->start();
 $process->signal(SIGUSER1);
@@ -95,11 +96,7 @@ $writeFifo->write('some message');
 $readFifo = new Slince\Process\Pipe\ReadableFifo('/tmp/test.pipe');
 echo $readFifo->read();
 ```
-Fifo works with half duplex mode. You can use `DuplexFifo` that will create two fifos.
 
-```php
-$fifo = new Slince\Process\Pipe\DuplexFifo('/tmp/test.pipe');
-$fifo->write('some message');
-$fifo->read();
-```
+## License
 
+The MIT license. See [MIT](https://opensource.org/licenses/MIT)
