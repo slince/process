@@ -59,6 +59,16 @@ final class Process implements ProcessInterface
     }
 
     /**
+     * Checks whether support pcntl.
+     * @return bool
+     */
+    public static function isSupported(): bool
+    {
+        return function_exists('pcntl_fork');
+    }
+
+
+    /**
      * Checks whether support signal.
      * @return bool
      */
