@@ -20,28 +20,25 @@ final class Process implements ProcessInterface
     /**
      * @var string
      */
-    protected string $status = self::STATUS_READY;
+    private string $status = self::STATUS_READY;
 
     /**
      * @var \Closure
      */
-    protected \Closure $callback;
-    protected ?int $pid = null;
-    protected ?int $statusInfo = null;
-    protected ?int $exitCode;
-    protected ?string $exitCodeText;
-    protected ?int $stopSignal;
-    protected ?int $termSignal;
+    private \Closure $callback;
+    private ?int $pid = null;
+    private ?int $statusInfo = null;
+    private ?int $exitCode;
+    private ?string $exitCodeText;
+    private ?int $stopSignal;
+    private ?int $termSignal;
 
-    protected static CurrentProcess $currentProcess;
+    private static CurrentProcess $currentProcess;
 
     public function __construct(callable $callback)
     {
         if (!function_exists('pcntl_fork')) {
             throw new RuntimeException('The Process class relies on ext-pcntl, which is not available on your PHP installation.');
-        }
-        if ($callback instanceof \Closure) {
-            \Closure::bind($callback, null);
         }
         $this->callback = $callback;
     }
@@ -137,7 +134,7 @@ final class Process implements ProcessInterface
         posix_kill($this->getPid(), $signal);
     }
 
-    protected function updateStatus(bool $blocking): void
+    private function updateStatus(bool $blocking): void
     {
         if (!$this->isAliveStatus()) {
             return;
