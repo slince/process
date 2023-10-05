@@ -89,6 +89,7 @@ final class Process implements ProcessInterface
             $this->pid = $pid;
             $this->status = self::STATUS_RUNNING;
         } else {
+            $this->pid = posix_getpid();
             try {
                 $exitCode = call_user_func($this->callback);
             } catch (\Exception $e) {
