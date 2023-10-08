@@ -41,13 +41,13 @@ final class CurrentProcess
      * Registers a callback for some signals.
      *
      * @param array|int $signals a signal or an array of signals
-     * @param callable $callback
+     * @param callable|int $handler
      * @param bool $restartSysCalls
      */
-    public function signal(array|int $signals, callable $callback, bool $restartSysCalls = true): void
+    public function signal(array|int $signals, callable|int $handler, bool $restartSysCalls = true): void
     {
         foreach ((array)$signals as $signal) {
-            pcntl_signal($signal, $callback, $restartSysCalls);
+            pcntl_signal($signal, $handler, $restartSysCalls);
         }
     }
 
