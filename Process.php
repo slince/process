@@ -33,7 +33,7 @@ final class Process implements ProcessInterface
     private ?int $stopSignal;
     private ?int $termSignal;
 
-    private static CurrentProcess $currentProcess;
+    private static ?CurrentProcess $currentProcess = null;
 
     public function __construct(callable $callback)
     {
